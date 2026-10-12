@@ -1,0 +1,1954 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#110d1c">
+<title>암석 연금술사</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+<style>
+  html{-webkit-text-size-adjust:100%}
+  body{font-family:'Jua',sans-serif;background-color:#110d1c;color:#f3f4f6;user-select:none;-webkit-user-select:none;touch-action:manipulation;-webkit-tap-highlight-color:transparent;overscroll-behavior-y:contain}
+  input,textarea,select{user-select:text;-webkit-user-select:text;font-size:16px!important}
+  .pixel-border{border:3px solid #4a3565;box-shadow:3px 3px 0 #11081f}
+  .pixel-btn{border:3px solid #1f1435;box-shadow:3px 3px 0 #0b0514;transition:all .05s ease;min-height:44px}
+  .pixel-btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 #0b0514}
+  .pixel-btn:disabled{opacity:.5;cursor:not-allowed}
+  .retro-bg{background:linear-gradient(180deg,#0f172a 0%,#1e1b4b 40%,#7c2d12 80%,#450a0a 100%)}
+  input[type=range]{accent-color:#f59e0b;height:8px;border-radius:4px}
+  .screen{display:none;width:100%}
+  .screen.active{display:flex}
+  .noscroll{touch-action:none}
+  svg text{font-family:'Jua',sans-serif}
+  .sel-on{background-color:#15803d !important}
+  @keyframes pulse-ring{0%,100%{opacity:.9}50%{opacity:.3}}
+  .pulse{animation:pulse-ring 1s infinite}
+  table.rk{width:100%;border-collapse:collapse;font-size:13px}
+  table.rk th,table.rk td{border-bottom:1px solid #374151;padding:6px 5px;text-align:center;white-space:nowrap}
+  table.rk th{color:#fbbf24;background:#111827;position:sticky;top:0}
+  details>summary{cursor:pointer;list-style:none}
+  details>summary::-webkit-details-marker{display:none}
+</style>
+</head>
+<body class="retro-bg min-h-screen flex flex-col items-center justify-center" style="padding:max(8px,env(safe-area-inset-top)) max(8px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left))">
+
+<div id="app" class="w-full max-w-md sm:max-w-2xl bg-gray-900/95 pixel-border rounded-xl p-3 sm:p-5 flex flex-col items-center min-h-[560px] relative">
+
+  <header class="w-full flex flex-wrap justify-between items-center border-b-4 border-gray-700 pb-2 mb-3 gap-2">
+    <div class="flex items-center space-x-2">
+      <span class="text-3xl sm:text-4xl">🏭</span>
+      <h1 class="text-xl sm:text-3xl text-yellow-400 tracking-wide leading-tight">암석 연금술사</h1>
+    </div>
+    <div class="flex items-center gap-2">
+      <div id="user-info" style="display:none" class="items-center gap-2 bg-gray-800 px-2.5 py-1 pixel-border rounded-lg text-sm sm:text-sm">
+        <span id="di-nick" class="text-green-400"></span>
+        <span>💎<span id="di-min" class="text-cyan-300">0</span></span>
+        <span>⭐<span id="di-score" class="text-yellow-300">0</span></span>
+      </div>
+      <button id="btn-mute" onclick="toggleMute()" class="pixel-btn bg-gray-700 px-3 py-1 rounded text-base">🔊</button>
+    </div>
+  </header>
+
+  <main class="w-full flex-grow flex flex-col items-center justify-center">
+
+    <!-- 로그인 -->
+    <div id="screen-login" class="screen active flex-col items-center space-y-3 max-w-sm text-center">
+      <div class="flex items-end justify-center gap-1">
+        <canvas id="cv-hero1" width="96" height="116" style="width:72px;height:87px"></canvas>
+        <div class="text-5xl animate-bounce pb-2">🪨</div>
+        <canvas id="cv-hero2" width="96" height="116" style="width:72px;height:87px"></canvas>
+      </div>
+      <h2 class="text-2xl sm:text-4xl text-yellow-300 leading-tight">지구 대탐험 &amp; 연금술 공장</h2>
+      <p class="text-sm sm:text-base text-gray-300 leading-relaxed">
+        <b>1</b> 달리며 코인과 광물 모으기 · <b>2</b> 암석 만드는 공장 · <b>3</b> 암석 순환 퍼즐
+      </p>
+      <input type="text" id="input-nickname" placeholder="닉네임 (실명 대신 닉네임!)" maxlength="10" autocomplete="off"
+        class="w-full px-4 py-3 bg-gray-800 text-white text-center text-lg pixel-border rounded-lg focus:outline-none focus:border-yellow-400">
+      <select id="input-class" onchange="onClassChange()" style="display:none"
+        class="w-full px-3 py-3 bg-gray-800 text-white text-center text-lg pixel-border rounded-lg focus:outline-none"></select>
+      <input type="text" id="input-class-text" placeholder="학급 (예: 2학년 3반)" maxlength="12" autocomplete="off" oninput="onClassChange()"
+        class="w-full px-4 py-3 bg-gray-800 text-white text-center text-lg pixel-border rounded-lg focus:outline-none focus:border-yellow-400">
+      <p id="class-badge" class="text-sm text-cyan-300"></p>
+      <button onclick="startFlow()" class="w-full py-3.5 bg-cyan-600 hover:bg-cyan-500 text-white text-xl pixel-btn rounded-lg">탐험 시작! 🏃</button>
+      <div class="w-full grid grid-cols-2 gap-2">
+        <button onclick="openCodex()" class="py-2 bg-purple-700 hover:bg-purple-600 text-white text-base pixel-btn rounded-lg">📖 암석 도감 <span id="codex-count" class="text-sm"></span></button>
+        <button onclick="openTeacher()" class="py-2 bg-gray-700 hover:bg-gray-600 text-white text-base pixel-btn rounded-lg">👩‍🏫 교사 모드</button>
+      </div>
+      <div class="w-full bg-gray-800/80 p-3 rounded-lg pixel-border text-left">
+        <div class="flex justify-between items-center mb-2 gap-2">
+          <h3 id="lb-title" class="text-base text-yellow-400">🏆 명예의 전당</h3>
+          <button onclick="refreshRanking()" class="px-2 py-1 bg-gray-700 text-white text-sm pixel-btn rounded" style="min-height:32px">↻ 새로고침</button>
+        </div>
+        <div id="lb-tabs" style="display:none" class="grid grid-cols-2 gap-1 mb-2 text-sm">
+          <button id="lb-tab-all" onclick="setLbTab('all')" class="py-1 rounded bg-gray-700 text-white" style="min-height:32px">전체</button>
+          <button id="lb-tab-cls" onclick="setLbTab('cls')" class="py-1 rounded bg-gray-700 text-white" style="min-height:32px">우리 반</button>
+        </div>
+        <p id="lb-status" class="text-sm text-gray-400 mb-1"></p>
+        <div id="ranking-list" class="space-y-1 text-sm text-gray-300"></div>
+      </div>
+      <details class="w-full text-left">
+        <summary class="text-sm text-gray-500 text-center py-1">⚙ 서버 연결 설정 · 수업 코드 (교사용)</summary>
+        <div class="bg-gray-800/80 p-3 rounded-lg mt-1 space-y-2 text-sm">
+          <p id="srv-state" class="text-gray-300"></p>
+          <button onclick="openServerSetup()" class="w-full py-2 bg-gray-700 hover:bg-gray-600 text-white pixel-btn rounded-lg">서버 주소 입력/변경</button>
+          <p class="text-gray-500">서버 없이 쓸 때만: 선생님께 받은 수업 코드</p>
+          <input type="text" id="input-classcode" placeholder="수업 코드 (RS1.…)" class="w-full px-3 py-2 bg-gray-900 text-white text-center rounded border border-gray-600">
+        </div>
+      </details>
+    </div>
+
+    <!-- 캐릭터 선택 -->
+    <div id="screen-char" class="screen flex-col items-center space-y-3 text-center">
+      <h2 class="text-2xl sm:text-3xl text-cyan-300">🧑‍🚀 탐험 캐릭터 선택</h2>
+      <p class="text-sm text-gray-300">캐릭터마다 체력·속도·점프·코인 자석과 필살 스킬이 달라요!</p>
+      <div id="char-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-2 w-full"></div>
+      <div id="char-detail" class="w-full bg-gray-800 pixel-border rounded-lg p-3 text-left text-sm space-y-1"></div>
+      <button onclick="confirmChar()" class="w-full py-3 bg-cyan-600 hover:bg-cyan-500 text-white text-xl pixel-btn rounded-lg">이 캐릭터로 출발! 🚀</button>
+    </div>
+
+    <!-- 바이옴 선택 -->
+    <div id="screen-biome" class="screen flex-col items-center space-y-3 text-center">
+      <div class="text-4xl">🗺️</div>
+      <h2 class="text-2xl sm:text-3xl text-cyan-300">탐험할 바이옴 선택</h2>
+      <p class="text-sm text-gray-300">🪙 코인을 모아 점수를 올리고, 가끔 나타나는 💎 광물은 공장 재료가 돼요. 바이옴은 한 번씩만 도전할 수 있어요!</p>
+      <div id="biome-list" class="w-full space-y-2"></div>
+      <div class="w-full bg-gray-800 rounded-lg p-2 text-left text-sm"><span class="text-gray-400">🎒 내 광물 주머니:</span> <span id="biome-inv"></span></div>
+      <div class="w-full grid grid-cols-2 gap-2">
+        <button onclick="show('screen-char');renderChars()" class="py-2 bg-gray-700 hover:bg-gray-600 text-white text-sm pixel-btn rounded-lg">← 캐릭터 다시 고르기</button>
+        <button onclick="startFactory()" class="py-2 bg-amber-600 hover:bg-amber-500 text-white text-sm pixel-btn rounded-lg">🏭 공장 가동하기 ➔</button>
+      </div>
+    </div>
+
+    <!-- 러너 -->
+    <div id="screen-runner" class="screen flex-col space-y-2">
+      <div class="bg-gray-800 p-2 pixel-border rounded-lg space-y-1">
+        <div class="flex justify-between items-center gap-2">
+          <span id="rn-title" class="px-2 py-1 bg-cyan-600 text-white text-sm rounded">바이옴</span>
+          <span id="rn-hearts" class="tracking-widest"></span>
+          <button id="btn-pause" onclick="togglePause()" class="px-3 py-1 bg-gray-700 hover:bg-gray-600 text-white text-sm pixel-btn rounded" style="min-height:36px">⏸</button>
+        </div>
+        <div class="flex justify-between items-center text-base">
+          <span>🪙 <span id="rn-coin" class="text-yellow-300">0</span></span>
+          <span>💎 <span id="rn-min" class="text-cyan-300">0</span></span>
+          <span class="text-gray-300">남은 <span id="rn-dist" class="text-yellow-400">0</span>m</span>
+        </div>
+      </div>
+      <div class="relative w-full bg-black border-4 border-gray-700 rounded-lg overflow-hidden">
+        <canvas id="runner-canvas" width="400" height="300" class="w-full h-auto block noscroll bg-slate-900"></canvas>
+        <div id="rn-pause-ov" style="display:none" class="absolute inset-0 bg-black/60 items-center justify-center text-2xl text-yellow-300 cursor-pointer text-center" onclick="togglePause()">⏸ 일시정지<br>터치하면 계속</div>
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <button id="btn-jump" class="py-5 bg-cyan-700 active:bg-cyan-600 text-white text-lg pixel-btn rounded-lg noscroll">⬆️ 점프</button>
+        <button id="btn-skill" class="relative overflow-hidden py-5 bg-fuchsia-700 text-white text-lg pixel-btn rounded-lg noscroll">
+          <span id="skill-bar" class="absolute inset-y-0 left-0 bg-fuchsia-400/40" style="width:0%"></span>
+          <span id="skill-label" class="relative">스킬</span>
+        </button>
+      </div>
+      <p class="text-sm text-center text-gray-400">화면을 눌러도 점프! · PC: [스페이스]=점프 · [S]=스킬 · ❓금색 보석=퀴즈</p>
+    </div>
+
+    <!-- 공장 -->
+    <div id="screen-game" class="screen flex-col space-y-2">
+      <div class="flex flex-wrap justify-between items-center gap-1 bg-gray-800 p-2 pixel-border rounded-lg text-sm sm:text-base">
+        <span id="fac-badge" class="px-2 py-1 bg-amber-600 text-white text-sm rounded">주문 접수</span>
+        <span class="text-gray-300">⏱ <span id="fac-timer" class="text-red-400 text-lg">120</span>초</span>
+        <span class="text-gray-300">성공 <span id="fac-success" class="text-green-400">0</span></span>
+        <span class="text-gray-300">🔥콤보 <span id="fac-streak" class="text-orange-300">0</span></span>
+        <span class="text-gray-300">점수 <span id="fac-score" class="text-yellow-300">0</span></span>
+      </div>
+
+      <div class="bg-gray-800/90 p-3 pixel-border rounded-lg space-y-2">
+        <div class="flex justify-between items-center">
+          <span class="text-sm text-gray-400 tracking-widest">긴급 주문서 #<span id="order-num">1</span> · <span id="order-mode"></span></span>
+          <button onclick="useHint()" id="hint-btn" class="px-2.5 py-1 bg-purple-700 hover:bg-purple-600 text-white text-sm pixel-btn rounded">💡 힌트</button>
+        </div>
+        <div class="flex justify-between items-center gap-3">
+          <div class="text-left flex-grow space-y-1">
+            <h4 id="mission-title" class="text-xl sm:text-3xl text-yellow-400"></h4>
+            <p id="mission-needs" class="text-sm text-gray-400"></p>
+            <div id="mission-hint" style="display:none" class="text-sm sm:text-sm text-gray-300 italic bg-gray-900/70 p-2 rounded space-y-1"></div>
+          </div>
+          <div class="bg-gray-900 border-2 border-gray-700 px-3 py-2 rounded text-center min-w-[90px]">
+            <span class="text-4xl block" id="factory-icon">🏭</span>
+            <span id="factory-status" class="text-sm sm:text-sm text-amber-400">대기</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="panel-identify" style="display:none" class="bg-gray-800 p-3 pixel-border rounded-lg space-y-2">
+        <p class="text-sm text-yellow-300 text-center">🔎 단서를 읽고 어떤 암석인지 맞혀보세요!</p>
+        <p id="id-clue" class="text-base text-gray-100 bg-gray-900/70 rounded p-2 leading-relaxed"></p>
+        <div id="id-options" class="grid grid-cols-2 gap-2"></div>
+      </div>
+
+      <div id="panel-category" class="bg-gray-800 p-3 pixel-border rounded-lg space-y-2">
+        <p class="text-sm sm:text-base text-yellow-300 text-center">이 암석은 어떤 대분류에 속할까요?</p>
+        <div class="grid grid-cols-3 gap-2">
+          <button onclick="selectCategory('igneous')" class="p-3 bg-red-900 hover:bg-red-800 text-base text-white pixel-btn rounded-lg"><div class="text-2xl">🌋</div>화성암</button>
+          <button onclick="selectCategory('sedimentary')" class="p-3 bg-amber-900 hover:bg-amber-800 text-base text-white pixel-btn rounded-lg"><div class="text-2xl">🏜️</div>퇴적암</button>
+          <button onclick="selectCategory('metamorphic')" class="p-3 bg-purple-900 hover:bg-purple-800 text-base text-white pixel-btn rounded-lg"><div class="text-2xl">〰️</div>변성암</button>
+        </div>
+      </div>
+
+      <div id="control-panel" style="display:none" class="bg-gray-800 p-3 pixel-border rounded-lg space-y-3"></div>
+
+      <div class="bg-gray-800/70 rounded-lg p-2 text-sm"><span class="text-gray-400">🎒 광물 주머니:</span> <span id="fac-inv"></span></div>
+    </div>
+
+    <!-- 순환 퍼즐 -->
+    <div id="screen-puzzle" class="screen flex-col space-y-2">
+      <div class="flex justify-between items-center bg-gray-800 p-2 pixel-border rounded-lg text-sm sm:text-base">
+        <span class="px-2 py-1 bg-purple-600 text-white text-sm rounded">보너스 스테이지</span>
+        <span id="pz-step" class="text-yellow-300"></span>
+        <span class="text-gray-300">퍼즐 점수 <span id="pz-score" class="text-yellow-300">0</span></span>
+      </div>
+      <div class="bg-gray-900 rounded-lg border-2 border-gray-700"><svg id="pz-svg" viewBox="0 0 360 320" class="w-full"></svg></div>
+
+      <div id="pz-stage1" class="space-y-2">
+        <p class="text-sm text-gray-300 leading-relaxed">① 아래에서 <b class="text-yellow-300">지질 작용</b>을 먼저 고른 뒤, 화살표 위의 <b class="text-yellow-300">?</b> 를 눌러 연결하세요. 암석이 어떻게 변하는지 순환도를 완성해 봐요!</p>
+        <div id="pz-palette" class="grid grid-cols-2 sm:grid-cols-3 gap-1.5"></div>
+        <p id="pz-procdesc" class="text-sm text-gray-400 min-h-[1.5rem]"></p>
+        <div class="grid grid-cols-3 gap-2">
+          <button onclick="checkPuzzle()" class="py-2 bg-green-600 hover:bg-green-500 text-white text-sm pixel-btn rounded">✔ 정답 확인</button>
+          <button onclick="resetPuzzle()" class="py-2 bg-gray-700 hover:bg-gray-600 text-white text-sm pixel-btn rounded">↺ 지우기</button>
+          <button onclick="endPuzzle()" class="py-2 bg-gray-700 hover:bg-gray-600 text-white text-sm pixel-btn rounded">건너뛰기</button>
+        </div>
+        <p id="pz-msg" class="text-sm text-center text-cyan-300 min-h-[1.2rem]"></p>
+      </div>
+
+      <div id="pz-stage2" style="display:none" class="bg-gray-800 p-3 pixel-border rounded-lg text-center space-y-2">
+        <p class="text-sm text-gray-300 leading-relaxed">② 암석 한 조각이 되어 지구 속을 여행해요! <b class="text-yellow-300">서로 다른 순환 고리 3개</b>를 찾아보세요. 여행에는 <b class="text-yellow-300">끝이 없답니다.</b></p>
+        <div id="jr-card" class="bg-gray-900 rounded-lg p-2"></div>
+        <div id="jr-options" class="grid gap-2"></div>
+        <div id="jr-log" class="flex flex-wrap justify-center gap-1 text-sm text-gray-300"></div>
+        <p id="jr-loops" class="text-sm text-yellow-300"></p>
+        <button onclick="endPuzzle()" class="w-full py-2 bg-gray-700 hover:bg-gray-600 text-white text-sm pixel-btn rounded">여행 마치기</button>
+      </div>
+    </div>
+
+    <!-- 결과 -->
+    <div id="screen-result" class="screen flex-col items-center space-y-3 max-w-md text-center">
+      <div class="text-5xl">🎉</div>
+      <h2 class="text-3xl text-yellow-400">탐험 &amp; 연금술 결과</h2>
+      <div class="bg-gray-800 p-3 pixel-border rounded-lg w-full space-y-1 text-base text-gray-300">
+        <p>연구원 <span id="res-nick" class="text-green-400"></span> <span id="res-class" class="text-gray-500 text-sm"></span></p>
+        <p>칭호 <span id="res-title" class="text-fuchsia-300"></span> · 캐릭터 <span id="res-char" class="text-cyan-300"></span></p>
+        <p>🪙 코인 <span id="res-coin" class="text-yellow-300"></span> · 💎 광물 <span id="res-min" class="text-cyan-300"></span>개</p>
+        <p>출고 <span id="res-count" class="text-yellow-300"></span>개 · 최고 콤보 <span id="res-best" class="text-orange-300"></span></p>
+        <p>정확도 <span id="res-acc" class="text-green-300"></span> · 퀴즈 <span id="res-quiz" class="text-green-300"></span></p>
+        <p>최종 점수 <span id="res-score" class="text-yellow-300 text-3xl"></span>점</p>
+      </div>
+      <div class="w-full bg-gray-800 p-3 pixel-border rounded-lg space-y-1">
+        <p id="res-rank" class="text-xl text-yellow-300"></p>
+        <p id="res-note" class="text-sm text-gray-400"></p>
+        <button id="res-code" onclick="showResultCode()" style="display:none" class="w-full mt-1 py-2 bg-cyan-700 hover:bg-cyan-600 text-white text-base pixel-btn rounded-lg">📨 결과 코드 만들기 (선생님께 제출)</button>
+        <button id="res-retry" onclick="syncRecord()" style="display:none" class="w-full mt-1 py-2 bg-amber-600 hover:bg-amber-500 text-white text-base pixel-btn rounded-lg">↻ 다시 보내기</button>
+      </div>
+      <div id="report" class="bg-gray-800 p-3 pixel-border rounded-lg w-full text-left text-sm space-y-1"></div>
+      <div id="bonus-prompt" class="w-full bg-purple-900/80 p-3 pixel-border rounded-lg space-y-2">
+        <p class="text-sm text-purple-200">✨ 암석 순환 퍼즐에 도전해 순환의 비밀을 알아보세요! (최대 +350점)</p>
+        <button onclick="startPuzzle()" class="w-full py-2 bg-purple-600 hover:bg-purple-500 text-white text-sm pixel-btn rounded">암석 순환 퍼즐 시작</button>
+      </div>
+      <div class="grid grid-cols-2 gap-2 w-full">
+        <button onclick="showLeaderboard()" class="py-2.5 bg-cyan-700 hover:bg-cyan-600 text-white text-base pixel-btn rounded-lg">🏆 명예의 전당</button>
+        <button onclick="openCodex()" class="py-2.5 bg-purple-700 hover:bg-purple-600 text-white text-base pixel-btn rounded-lg">📖 도감 보기</button>
+        <button onclick="restartGame()" class="py-2.5 bg-green-600 hover:bg-green-500 text-white text-base pixel-btn rounded-lg">🔁 다시하기</button>
+        <button onclick="goHome()" class="py-2.5 bg-gray-700 hover:bg-gray-600 text-white text-base pixel-btn rounded-lg">처음으로</button>
+      </div>
+      <p class="text-sm text-gray-500">※ 같은 기기로 다시 해도 가장 높은 점수가 명예의 전당에 올라가요.</p>
+    </div>
+
+    <!-- 교사 -->
+    <div id="screen-teacher" class="screen flex-col space-y-3">
+      <div class="flex justify-between items-center">
+        <h2 class="text-xl text-yellow-300">👩‍🏫 교사용 대시보드</h2>
+        <button onclick="leaveTeacher()" class="px-3 py-1 bg-gray-700 hover:bg-gray-600 text-white text-sm pixel-btn rounded">← 나가기</button>
+      </div>
+      <p id="ts-mode" class="text-sm"></p>
+
+      <section class="bg-gray-800 p-3 pixel-border rounded-lg space-y-2 text-sm">
+        <h3 class="text-yellow-400 text-base">① 학생 공유 링크</h3>
+        <p id="ts-share-note" class="text-gray-400"></p>
+        <textarea id="ts-share" readonly rows="3" class="w-full px-2 py-1 bg-gray-900 text-green-300 rounded border border-gray-600 text-sm"></textarea>
+        <button onclick="copyText($('ts-share').value)" class="w-full py-2 bg-cyan-700 hover:bg-cyan-600 text-white pixel-btn rounded">📋 링크 복사 (오픈채팅방에 붙여넣기)</button>
+      </section>
+
+      <section class="bg-gray-800 p-3 pixel-border rounded-lg space-y-2 text-sm">
+        <h3 class="text-yellow-400 text-base">② 수업 설정</h3>
+        <p class="text-gray-400">서버에 저장하면 학생들이 접속할 때 자동으로 적용돼요.</p>
+        <label class="block space-y-1"><span class="text-gray-300">학급 목록 (쉼표로 구분, 비워두면 학생이 직접 입력)</span>
+          <input id="ts-classes" maxlength="120" placeholder="예: 2학년 1반, 2학년 2반, 2학년 3반" class="w-full px-2 py-1.5 bg-gray-900 text-white rounded border border-gray-600"></label>
+        <div class="grid grid-cols-2 gap-2">
+          <label class="space-y-1"><span class="text-gray-300">공장 제한시간(초)</span>
+            <input id="ts-sec" type="number" min="60" max="180" step="10" class="w-full px-2 py-1.5 bg-gray-900 text-white rounded border border-gray-600"></label>
+          <label class="space-y-1"><span class="text-gray-300">러너 거리(m)</span>
+            <input id="ts-m" type="number" min="300" max="1000" step="100" class="w-full px-2 py-1.5 bg-gray-900 text-white rounded border border-gray-600"></label>
+          <label class="space-y-1 col-span-2"><span class="text-gray-300">힌트 사용</span>
+            <select id="ts-hint" class="w-full px-2 py-1.5 bg-gray-900 text-white rounded border border-gray-600"><option value="1">허용</option><option value="0">금지 (평가용)</option></select></label>
+        </div>
+        <div class="text-gray-300">출제 범위:
+          <label class="ml-2"><input type="checkbox" id="ts-c1" checked> 화성암</label>
+          <label class="ml-2"><input type="checkbox" id="ts-c2" checked> 퇴적암</label>
+          <label class="ml-2"><input type="checkbox" id="ts-c3" checked> 변성암</label>
+        </div>
+        <button onclick="saveSettings()" id="ts-save" class="w-full py-2 bg-green-600 hover:bg-green-500 text-white pixel-btn rounded">💾 설정 저장</button>
+        <details id="ts-codebox" class="text-gray-400">
+          <summary class="py-1">서버 없이 쓸 때: 수업 코드로 설정 전달</summary>
+          <div class="space-y-2 pt-1">
+            <button onclick="makeClassCode()" class="w-full py-2 bg-cyan-700 hover:bg-cyan-600 text-white pixel-btn rounded">수업 코드 만들기</button>
+            <textarea id="ts-code" readonly rows="2" class="w-full px-2 py-1 bg-gray-900 text-green-300 rounded border border-gray-600 text-sm" placeholder="여기에 수업 코드가 표시됩니다"></textarea>
+            <button onclick="copyText($('ts-code').value)" class="w-full py-1.5 bg-gray-700 hover:bg-gray-600 text-white pixel-btn rounded">📋 수업 코드 복사</button>
+          </div>
+        </details>
+      </section>
+
+      <section class="bg-gray-800 p-3 pixel-border rounded-lg space-y-2 text-sm">
+        <div class="flex justify-between items-center gap-2">
+          <h3 class="text-yellow-400 text-base">③ 학생 기록 · 순위표</h3>
+          <button onclick="reloadRows()" class="px-2 py-1 bg-gray-700 hover:bg-gray-600 text-white pixel-btn rounded" style="min-height:36px">↻ 새로고침</button>
+        </div>
+        <div id="ts-local" style="display:none" class="space-y-2">
+          <p class="text-gray-400">서버가 없을 때: 학생이 제출한 '결과 코드'를 줄마다 하나씩 붙여넣으세요. 이 기기에서 플레이한 기록은 자동 포함돼요.</p>
+          <textarea id="ts-paste" rows="3" class="w-full px-2 py-1 bg-gray-900 text-white rounded border border-gray-600 text-sm" placeholder="RR1.xxxx.yyyy&#10;RR1.xxxx.yyyy"></textarea>
+          <button onclick="importCodes()" class="w-full py-2 bg-green-600 hover:bg-green-500 text-white pixel-btn rounded">📥 결과 불러오기</button>
+        </div>
+        <div class="flex gap-2 items-center">
+          <select id="ts-filter" onchange="renderTeacher()" class="flex-grow px-2 py-1 bg-gray-900 text-white rounded border border-gray-600"></select>
+          <button onclick="exportCsv()" class="px-3 py-1 bg-cyan-700 hover:bg-cyan-600 text-white pixel-btn rounded">CSV</button>
+        </div>
+        <div id="ts-table" class="max-h-72 overflow-auto"></div>
+      </section>
+
+      <section class="bg-gray-800 p-3 pixel-border rounded-lg space-y-2 text-sm">
+        <h3 class="text-yellow-400 text-base">④ 학급 분석 — 수업에서 다시 짚을 개념</h3>
+        <div id="ts-analysis" class="space-y-1"></div>
+      </section>
+
+      <section class="bg-gray-800 p-3 pixel-border rounded-lg space-y-2 text-sm">
+        <h3 class="text-yellow-400 text-base">⑤ 관리</h3>
+        <div class="grid grid-cols-2 gap-2">
+          <button onclick="changePin()" class="py-2 bg-gray-700 hover:bg-gray-600 text-white pixel-btn rounded">PIN 변경</button>
+          <button onclick="openServerSetup()" class="py-2 bg-gray-700 hover:bg-gray-600 text-white pixel-btn rounded">서버 주소</button>
+          <button onclick="clearServerRows()" id="ts-clear-srv" class="py-2 bg-red-800 hover:bg-red-700 text-white pixel-btn rounded">서버 기록 전체 삭제</button>
+          <button onclick="clearRecords()" class="py-2 bg-red-900 hover:bg-red-800 text-white pixel-btn rounded">이 기기 기록 삭제</button>
+        </div>
+        <p class="text-gray-500">PIN은 이 기기·서버 어디에도 평문으로 저장되지 않아요. 학생에게는 '학생 공유 링크'만 알려주세요.</p>
+      </section>
+    </div>
+
+  </main>
+
+  <footer class="w-full text-center text-sm text-gray-500 mt-3 border-t border-gray-800 pt-2">
+    Rock Alchemy Factory · Classroom Edition
+  </footer>
+</div>
+
+<!-- 공용 모달 -->
+<div id="modal" style="display:none" class="fixed inset-0 bg-black/80 z-50 items-center justify-center p-3">
+  <div class="bg-gray-800 border-4 border-yellow-500 rounded-xl p-4 w-full max-w-sm sm:max-w-md max-h-[90vh] overflow-y-auto text-center space-y-3 pixel-border">
+    <div id="modal-icon" class="text-5xl"></div>
+    <h3 id="modal-title" class="text-2xl text-yellow-300"></h3>
+    <div id="modal-body" class="text-sm sm:text-base text-gray-200 leading-relaxed"></div>
+    <div id="modal-btns" class="flex flex-col gap-2"></div>
+  </div>
+</div>
+<div id="toast" style="display:none" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-gray-950 border-2 border-yellow-500 text-yellow-200 px-4 py-2 rounded-lg text-base z-[60] max-w-[90vw] text-center"></div>
+
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const rnd = (a, b) => a + Math.random() * (b - a);
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const LS = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
+  del(k) { try { localStorage.removeItem(k); } catch (e) {} }
+};
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  $(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+let toastTimer = null;
+function toast(msg) {
+  const t = $('toast'); t.textContent = msg; t.style.display = 'block';
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.style.display = 'none'; }, 2200);
+}
+function copyText(text) {
+  if (!text) { toast('복사할 내용이 없어요.'); return; }
+  const fallback = () => {
+    const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); toast('복사했어요!'); } catch (e) { toast('직접 선택해서 복사해 주세요.'); }
+    document.body.removeChild(ta);
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(() => toast('복사했어요!'), fallback);
+  else fallback();
+}
+
+/* 코드(수업 설정/결과) 인코딩 */
+function b64e(o) { return btoa(unescape(encodeURIComponent(JSON.stringify(o)))); }
+function b64d(s) { return JSON.parse(decodeURIComponent(escape(atob(s)))); }
+function hash(str) { let h = 5381; for (let i = 0; i < str.length; i++) h = ((h << 5) + h + str.charCodeAt(i)) | 0; return (h >>> 0).toString(36); }
+function makeCode(prefix, obj) { const p = b64e(obj); return prefix + '.' + p + '.' + hash('rock-salt-' + p); }
+function readCode(code, prefix) {
+  const parts = String(code).replace(/\s+/g, '').split('.');
+  if (parts.length !== 3 || parts[0] !== prefix) return null;
+  if (hash('rock-salt-' + parts[1]) !== parts[2]) return null;
+  try { return b64d(parts[1]); } catch (e) { return null; }
+}
+
+/* 공용 모달 */
+function openModal(o) {
+  $('modal-icon').textContent = o.icon || '';
+  $('modal-title').textContent = o.title || '';
+  const body = $('modal-body'); body.innerHTML = o.html || '';
+  if (o.build) o.build(body);
+  setModalButtons(o.buttons || []);
+  $('modal').style.display = 'flex';
+}
+function setModalButtons(list) {
+  const box = $('modal-btns'); box.innerHTML = '';
+  list.forEach(b => {
+    const btn = document.createElement('button');
+    btn.className = 'w-full py-2.5 text-white text-base pixel-btn rounded-lg ' + (b.cls || 'bg-amber-600 hover:bg-amber-500');
+    btn.textContent = b.label;
+    btn.onclick = () => { if (!b.keep) closeModal(); if (b.fn) b.fn(); };
+    box.appendChild(btn);
+  });
+}
+function closeModal() { $('modal').style.display = 'none'; }
+
+/* =========================================================
+   사운드
+========================================================= */
+let audioCtx = null, muted = LS.get('rock_muted', false);
+function beep(type, f1, f2, dur, vol) {
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const c = audioCtx; if (c.state === 'suspended') c.resume();
+    const o = c.createOscillator(), g = c.createGain(); o.type = type; o.connect(g); g.connect(c.destination);
+    const n = c.currentTime; o.frequency.setValueAtTime(f1, n);
+    if (f2 !== f1) o.frequency.exponentialRampToValueAtTime(f2, n + dur);
+    g.gain.setValueAtTime(vol, n); g.gain.exponentialRampToValueAtTime(0.001, n + dur);
+    o.start(n); o.stop(n + dur);
+  } catch (e) {}
+}
+const SND = {
+  click: () => beep('sine', 400, 800, .05, .1),
+  jump: () => beep('triangle', 250, 600, .15, .12),
+  collect: () => beep('sine', 600, 950, .12, .14),
+  success: () => { beep('triangle', 300, 500, .12, .14); setTimeout(() => beep('triangle', 500, 800, .2, .14), 110); },
+  wrong: () => beep('sawtooth', 180, 110, .2, .14),
+  phase: () => beep('square', 220, 440, .3, .09),
+  hit: () => beep('sawtooth', 140, 60, .25, .18),
+  skill: () => beep('square', 300, 900, .35, .1),
+  coin: () => { beep('square', 988, 988, .06, .06); setTimeout(() => beep('square', 1318, 1318, .1, .06), 55); }
+};
+function playSound(t) { if (muted) return; try { SND[t] && SND[t](); } catch (e) {} }
+function toggleMute() { muted = !muted; LS.set('rock_muted', muted); $('btn-mute').textContent = muted ? '🔇' : '🔊'; }
+
+/* =========================================================
+   데이터
+========================================================= */
+const MATERIALS = {
+  quartz:{name:'석영',short:'석영',color:'#e5e7eb'}, feldspar:{name:'장석',short:'장석',color:'#fda4af'},
+  mica:{name:'운모',short:'운모',color:'#a78bfa'}, hornblende:{name:'각섬석',short:'각섬',color:'#34d399'},
+  olivine:{name:'감람석',short:'감람',color:'#a3e635'}, pyroxene:{name:'휘석',short:'휘석',color:'#9ca3af'},
+  garnet:{name:'석류석',short:'석류',color:'#ef4444'}, calcite:{name:'방해석',short:'방해',color:'#fde68a'},
+  sand:{name:'모래',short:'모래',color:'#fbbf24'}, mud:{name:'진흙',short:'진흙',color:'#a16207'},
+  gravel:{name:'자갈',short:'자갈',color:'#a8a29e'}, shell:{name:'조개·산호',short:'조개',color:'#f9a8d4'}
+};
+
+const BIOMES = [
+  {id:'mountain',name:'⛰️ 1단계: 산',desc:'석영·장석·운모·각섬석 (화강암의 재료)',sky:['#1e3a5f','#94a3b8'],far:'#475569',near:'#334155',floor:'#57534e',top:'#78716c',items:['quartz','feldspar','mica','hornblende'],fx:'cloud'},
+  {id:'river',name:'🏞️ 2단계: 강',desc:'모래·진흙·자갈·조개 (퇴적물)',sky:['#0e7490','#a5f3fc'],far:'#0f766e',near:'#115e59',floor:'#a16207',top:'#ca8a04',items:['sand','mud','gravel','shell'],fx:'none'},
+  {id:'ocean',name:'🌊 3단계: 바다',desc:'조개·방해석·진흙·모래 (해양 퇴적)',sky:['#082f49','#0284c7'],far:'#075985',near:'#0c4a6e',floor:'#d6a35c',top:'#fcd34d',items:['shell','calcite','mud','sand'],fx:'bubble'},
+  {id:'deep',name:'🌀 4단계: 지각 변동대',desc:'석류석·운모·방해석·석영 (변성 광물)',sky:['#1e1b4b','#581c87'],far:'#4c1d95',near:'#3b0764',floor:'#6b21a8',top:'#a855f7',items:['garnet','mica','calcite','quartz'],fx:'spark'},
+  {id:'magma',name:'🌋 5단계: 마그마',desc:'감람석·휘석·각섬석·장석 (염기성 광물)',sky:['#450a0a','#ea580c'],far:'#7f1d1d',near:'#450a0a',floor:'#7c2d12',top:'#f97316',items:['olivine','pyroxene','hornblende','feldspar'],fx:'ember'}
+];
+
+/* 캐릭터: hp 체력, speed 속도배율, jumps 최대 점프 횟수, jumpPower 점프력, magnet 광물 흡입 반경 */
+const CHARACTERS = [
+  {id:'m1',name:'바위',title:'근육질 탐험가',hp:5,speed:0.9,jumps:2,jumpPower:10.5,magnet:45,quizBonus:1,skill:'shield',skillIcon:'🛡️',skillName:'바위 방패',skillDesc:'3초간 무적! 부딪힌 바위를 부수면 광물이 나와요',cd:14,
+   build:'big',skin:'#e8b48a',hair:'#2b1d14',hairStyle:'buzz',shirt:'#dc2626',pants:'#1f2937',acc:'headband',detail:'tank',trait:'튼튼하지만 조금 느려요'},
+  {id:'m2',name:'번개',title:'날쌘 육상부',hp:3,speed:1.18,jumps:2,jumpPower:10.5,magnet:50,quizBonus:1,skill:'dash',skillIcon:'⚡',skillName:'번개 대시',skillDesc:'1.2초간 두 배 속도로 질주하며 무적',cd:12,
+   build:'slim',skin:'#f1c7a0',hair:'#1d4ed8',hairStyle:'spiky',shirt:'#facc15',pants:'#1e3a8a',acc:'none',detail:'bolt',trait:'가장 빠르지만 체력이 적어요'},
+  {id:'m3',name:'지질',title:'안경 박사',hp:3,speed:1.0,jumps:2,jumpPower:10.5,magnet:110,quizBonus:2,skill:'scan',skillIcon:'📡',skillName:'광물 레이더',skillDesc:'8초간 광물이 자석처럼 끌려와요',cd:18,
+   build:'mid',skin:'#f1c7a0',hair:'#3f2a1d',hairStyle:'short',shirt:'#e5e7eb',pants:'#374151',acc:'glasses',detail:'coat',trait:'자석 범위가 넓고, 퀴즈 보너스가 2배!'},
+  {id:'f1',name:'제비',title:'날씬한 체조선수',hp:2,speed:1.12,jumps:3,jumpPower:11.2,magnet:60,quizBonus:1,skill:'slow',skillIcon:'⏳',skillName:'타임 슬로우',skillDesc:'4초간 시간이 느려져 피하기 쉬워요',cd:16,
+   build:'slim',skin:'#f6d0b0',hair:'#7c2d12',hairStyle:'ponytail',shirt:'#ec4899',pants:'#7e22ce',acc:'none',detail:'star',trait:'3단 점프! 대신 체력이 가장 적어요'},
+  {id:'f2',name:'불꽃',title:'다부진 레인저',hp:4,speed:1.0,jumps:2,jumpPower:10.5,magnet:50,quizBonus:1,skill:'blast',skillIcon:'💥',skillName:'충격파',skillDesc:'화면의 모든 장애물을 한 번에 부숴요',cd:15,
+   build:'mid',skin:'#d9a37a',hair:'#111827',hairStyle:'long',shirt:'#ea580c',pants:'#292524',acc:'band',skirt:true,detail:'flame',trait:'균형형 — 체력도 속도도 든든해요'},
+  {id:'f3',name:'나침반',title:'침착한 탐사대장',hp:3,speed:1.0,jumps:2,jumpPower:10.5,magnet:85,quizBonus:1,skill:'heal',skillIcon:'💚',skillName:'응급 처치',skillDesc:'하트 1개를 회복하고 2초간 무적',cd:20,
+   build:'mid',skin:'#f1c7a0',hair:'#a16207',hairStyle:'bob',shirt:'#16a34a',pants:'#78350f',acc:'hat',detail:'compass',trait:'회복 스킬로 오래 버텨요'}
+];
+const CHAR_BY_ID = Object.fromEntries(CHARACTERS.map(c => [c.id, c]));
+
+const CATS = {
+  igneous:{name:'화성암',icon:'🌋'}, sedimentary:{name:'퇴적암',icon:'🏜️'}, metamorphic:{name:'변성암',icon:'〰️'}
+};
+
+const ROCKS = [
+  {id:'basalt',cat:'igneous',name:'현무암',icon:'🌋',target:{sio2:[40,51],mineral:'dark',cool:'fast'},needs:['olivine','pyroxene'],
+   clue:'SiO₂ 약 48%인 어두운 색 암석. 화산에서 분출한 용암이 빠르게 식어 결정이 매우 작다. 제주도에서 흔하다.',
+   hints:['화성암 중 "화산암"이에요. 용암이 어디에서 식었는지 생각해 보세요.','SiO₂가 적은 염기성 마그마가 만든 암석이고, 어두운 유색 광물이 많아요.','염기성(SiO₂ 52% 미만) + 유색 광물 + 빠른 냉각(지표)'],
+   desc:'SiO₂가 적은 염기성 용암이 지표에서 빠르게 식어 만들어진 어두운 화산암이에요.'},
+  {id:'andesite',cat:'igneous',name:'안산암',icon:'⛰️',target:{sio2:[52,62],mineral:'medium',cool:'fast'},needs:['feldspar','hornblende'],
+   clue:'SiO₂ 약 57%인 회색빛 암석. 화산 지대에서 빠르게 식어 결정이 작다.',
+   hints:['"화산암" 중에서도 현무암과 유문암의 중간 성분이에요.','SiO₂ 52~63%인 중성 마그마이고, 색은 중간 정도예요.','중성(SiO₂ 52~63%) + 중간 색 광물 + 빠른 냉각(지표)'],
+   desc:'현무암과 유문암의 중간 성분을 가진 회색빛 화산암이에요.'},
+  {id:'rhyolite',cat:'igneous',name:'유문암',icon:'🏜️',target:{sio2:[63,80],mineral:'light',cool:'fast'},needs:['quartz','feldspar'],
+   clue:'SiO₂ 약 70%인 밝은 색 암석. 지표 부근에서 빠르게 식어 결정이 작다.',
+   hints:['화강암과 화학 조성이 같지만, 식은 장소가 달라요.','SiO₂가 많은 산성 마그마이고, 밝은 무색 광물이 많아요.','산성(SiO₂ 63% 이상) + 무색 광물 + 빠른 냉각(지표)'],
+   desc:'화강암과 성분은 같지만 지표 부근에서 빨리 식어 결정이 작은 밝은색 화산암이에요.'},
+  {id:'gabbro',cat:'igneous',name:'반려암',icon:'⚫',target:{sio2:[40,51],mineral:'dark',cool:'slow'},needs:['pyroxene','olivine'],
+   clue:'현무암과 성분이 같은 어두운 암석. 땅속 깊은 곳에서 천천히 식어 결정이 크다.',
+   hints:['"심성암"이에요. 땅속 깊은 곳에서 천천히 식었어요.','현무암과 같은 염기성 마그마가 재료예요.','염기성(SiO₂ 52% 미만) + 유색 광물 + 느린 냉각(지하)'],
+   desc:'현무암과 성분이 같지만 땅속 깊은 곳에서 천천히 식어 결정이 큰 어두운 심성암이에요.'},
+  {id:'diorite',cat:'igneous',name:'섬록암',icon:'🔘',target:{sio2:[52,62],mineral:'medium',cool:'slow'},needs:['hornblende','feldspar'],
+   clue:'SiO₂ 약 57%이고 알갱이가 큰 회색 암석. 안산암과 성분이 같지만 땅속에서 식었다.',
+   hints:['"심성암"이고 안산암과 같은 성분이에요.','SiO₂ 52~63%인 중성이고, 중간 색 광물이 많아요.','중성(SiO₂ 52~63%) + 중간 색 광물 + 느린 냉각(지하)'],
+   desc:'안산암과 같은 중성 성분이 땅속에서 천천히 식어 만들어진 심성암이에요.'},
+  {id:'granite',cat:'igneous',name:'화강암',icon:'🏔️',target:{sio2:[63,80],mineral:'light',cool:'slow'},needs:['quartz','feldspar','mica'],
+   clue:'SiO₂ 약 70%인 밝은 색 암석. 석영·장석 결정이 커서 눈으로 구분된다. 땅속 깊은 곳에서 천천히 식었다.',
+   hints:['"심성암"이고 밝은색이에요. 북한산·설악산에서 볼 수 있어요.','SiO₂가 많은 산성 마그마이고, 석영·장석 같은 무색 광물이 많아요.','산성(SiO₂ 63% 이상) + 무색 광물 + 느린 냉각(지하)'],
+   desc:'밝은 석영·장석이 풍부하고, 땅속 깊은 곳에서 천천히 식어 결정이 큰 심성암이에요.'},
+
+  {id:'sandstone',cat:'sedimentary',name:'사암',icon:'🏜️',target:{material:'sand',acid:false},needs:['sand','quartz'],
+   clue:'모래 알갱이(0.06~2 mm)가 다져지고 굳은 암석. 층리가 보이고 묽은 염산에 반응하지 않는다.',
+   hints:['쇄설성 퇴적암이고, 알갱이가 손으로 느껴질 만큼 굵어요.','재료는 모래이고 석영 알갱이가 많아요.','모래 + 다져짐·굳어짐 + 염산 반응 없음'],
+   desc:'모래가 쌓여 다져지고 굳어진 퇴적암으로, 층리가 잘 보여요.'},
+  {id:'mudstone',cat:'sedimentary',name:'이암(셰일)',icon:'📜',target:{material:'mud',acid:false},needs:['mud'],
+   clue:'아주 고운 진흙이 쌓여 굳은 암석. 얇게 쪼개지기 쉽고 화석이 잘 보존된다.',
+   hints:['입자가 가장 고운 쇄설성 퇴적암이에요.','재료는 진흙이고, 조용한 물 밑에서 쌓여요.','진흙 + 다져짐·굳어짐 + 염산 반응 없음'],
+   desc:'진흙이 쌓여 굳은 퇴적암으로, 얇게 잘 쪼개지고 화석이 자주 발견돼요.'},
+  {id:'conglomerate',cat:'sedimentary',name:'역암',icon:'🪨',target:{material:'gravel',acid:false},needs:['gravel','sand'],
+   clue:'둥근 자갈이 모래·진흙 사이에 박혀 굳은 암석. 입자가 가장 굵다.',
+   hints:['입자 크기가 가장 큰 쇄설성 퇴적암이에요.','재료는 둥근 자갈이에요. 강 상류나 해안에서 많이 쌓여요.','자갈 + 다져짐·굳어짐 + 염산 반응 없음'],
+   desc:'자갈이 모래·진흙과 함께 굳은 굵은 입자의 퇴적암이에요.'},
+  {id:'limestone',cat:'sedimentary',name:'석회암',icon:'🐚',target:{material:'shell',acid:true},needs:['shell','calcite'],
+   clue:'조개·산호 같은 생물 유해(탄산칼슘)가 쌓여 굳은 암석. 묽은 염산을 떨어뜨리면 거품이 난다.',
+   hints:['생물의 유해나 화학적 침전으로 만들어지는 퇴적암이에요.','재료는 탄산칼슘 성분의 조개·산호 껍데기예요.','조개·산호 + 다져짐·굳어짐 + 염산 반응 있음(거품)'],
+   desc:'탄산칼슘 성분이라 묽은 염산과 반응해 거품이 나요. 조개·산호 화석이 많아요.'},
+
+  {id:'gneiss',cat:'metamorphic',name:'편마암',icon:'〰️',target:{rock:'granite',force:['pressure'],structure:'foliation'},needs:['quartz','feldspar','mica'],
+   clue:'화강암이 높은 온도와 강한 압력을 받아 밝은 광물과 어두운 광물이 줄무늬를 이룬 암석.',
+   hints:['변성암이고, 원래 암석은 화성암이에요.','압력 방향에 수직으로 광물이 배열되어 줄무늬(엽리)가 생겨요.','화강암 + 강한 압력 + 엽리 있음'],
+   desc:'화강암이 강한 압력을 받아 밝은색·어두운색 광물이 번갈아 줄무늬(엽리)를 이룬 변성암이에요.'},
+  {id:'schist',cat:'metamorphic',name:'편암',icon:'📚',target:{rock:'mudstone',force:['pressure'],structure:'foliation'},needs:['mica','garnet'],
+   clue:'이암(셰일)이 강한 압력을 받아 운모가 잘 배열되고 얇게 쪼개지는 암석.',
+   hints:['변성암이고, 원래 암석은 입자가 고운 퇴적암이에요.','운모가 한 방향으로 배열되어 얇게 쪼개져요.','이암 + 강한 압력 + 엽리 있음'],
+   desc:'이암이 압력을 받아 운모가 층층이 배열돼 얇게 쪼개지는 변성암이에요.'},
+  {id:'quartzite',cat:'metamorphic',name:'규암',icon:'🔥',target:{rock:'sandstone',force:['heat'],structure:'non'},needs:['quartz','sand'],
+   clue:'사암이 마그마의 열을 받아 석영 알갱이가 다시 결정을 이루어 매우 단단해진 암석. 줄무늬가 없다.',
+   hints:['변성암이고, 원래 암석은 사암이에요.','마그마와 접촉해 열을 받으면 알갱이가 재결정돼요.','사암 + 열 + 엽리 없음'],
+   desc:'사암이 열을 받아 석영 알갱이가 다시 결정을 이루어 매우 단단해진 비엽리 변성암이에요.'},
+  {id:'marble',cat:'metamorphic',name:'대리암',icon:'🏛️',target:{rock:'limestone',force:['heat','pressure'],structure:'non'},needs:['calcite','shell'],
+   clue:'석회암이 열이나 압력을 받아 방해석 결정이 커지고 단단해진 암석. 줄무늬가 없고 건축·조각 재료로 쓰인다.',
+   hints:['변성암이고, 원래 암석은 염산에서 거품이 나는 암석이에요.','방해석 알갱이가 다시 커지면서 줄무늬 없이 균일해져요.','석회암 + 열(또는 압력) + 엽리 없음'],
+   desc:'석회암이 변성되어 방해석이 재결정된 암석으로 건축·조각 재료로 쓰여요.'}
+];
+const ROCK_BY_ID = Object.fromEntries(ROCKS.map(r => [r.id, r]));
+
+const QUIZ = [
+  {q:'화강암에 많은 밝은색(무색) 광물 두 가지는?',o:['석영·장석','감람석·휘석','석류석·방해석'],a:0,exp:'화강암은 석영과 장석이 많아 밝은 색을 띠어요.',tag:'igneous'},
+  {q:'마그마가 땅속 깊은 곳에서 서서히 식으면 어떤 암석이 될까?',o:['결정이 큰 심성암','결정이 작은 화산암','층리가 있는 퇴적암'],a:0,exp:'천천히 식으면 결정이 크게 자라요(심성암).',tag:'igneous'},
+  {q:'현무암의 SiO₂ 함량은?',o:['적다 (염기성)','중간 (중성)','많다 (산성)'],a:0,exp:'현무암은 SiO₂가 약 45~52%로 적은 염기성 암석이에요.',tag:'igneous'},
+  {q:'묽은 염산을 떨어뜨리면 거품이 나는 퇴적암은?',o:['석회암','사암','역암'],a:0,exp:'석회암은 탄산칼슘 성분이라 염산과 반응해요.',tag:'sedimentary'},
+  {q:'화석이 주로 발견되는 암석의 종류는?',o:['퇴적암','화성암','변성암'],a:0,exp:'생물 유해가 퇴적물과 함께 묻혀 굳기 때문이에요.',tag:'sedimentary'},
+  {q:'엽리(줄무늬)가 잘 발달한 변성암은?',o:['편마암','대리암','규암'],a:0,exp:'편마암은 압력으로 광물이 줄무늬를 이뤄요.',tag:'metamorphic'},
+  {q:'사암이 열을 받아 변하면?',o:['규암','대리암','편마암'],a:0,exp:'사암 → 규암. 석영 알갱이가 다시 결정을 이뤄요.',tag:'metamorphic'},
+  {q:'석회암이 열이나 압력을 받아 변하면?',o:['대리암','규암','편암'],a:0,exp:'석회암 → 대리암. 방해석이 재결정돼요.',tag:'metamorphic'},
+  {q:'쌓인 퇴적물이 다져지고 굳어 암석이 되는 작용은?',o:['속성 작용','변성 작용','용융'],a:0,exp:'압축과 교결로 단단해지는 과정이에요.',tag:'sedimentary'},
+  {q:'암석이 높은 열에 녹으면 무엇이 될까?',o:['마그마','퇴적물','변성암'],a:0,exp:'암석이 녹으면 마그마가 되고, 식으면 다시 화성암이 돼요.',tag:'cycle'},
+  {q:'층리가 주로 나타나는 암석은?',o:['퇴적암','화성암','심성암'],a:0,exp:'퇴적물이 층층이 쌓여 층리가 생겨요.',tag:'sedimentary'},
+  {q:'유문암과 화강암의 공통점은?',o:['SiO₂가 많은 같은 성분','식은 속도가 같다','둘 다 퇴적암이다'],a:0,exp:'둘 다 산성암이에요. 다만 유문암은 빨리, 화강암은 천천히 식었어요.',tag:'igneous'},
+  {q:'지표 부근에서 빨리 식어 결정이 작은 화성암을 무엇이라 할까?',o:['화산암','심성암','변성암'],a:0,exp:'급하게 식으면 결정이 자랄 시간이 부족해요.',tag:'igneous'},
+  {q:'입자가 가장 굵은 퇴적암은?',o:['역암','사암','이암'],a:0,exp:'자갈이 굳은 역암이 입자가 가장 커요.',tag:'sedimentary'},
+  {q:'이암(셰일)이 강한 압력을 받아 변한 암석은?',o:['편암','대리암','규암'],a:0,exp:'운모가 배열돼 얇게 쪼개지는 편암이 돼요.',tag:'metamorphic'},
+  {q:'암석을 부수고 옮기고 쌓는 작용을 모두 묶어 부르는 말에 가까운 것은?',o:['풍화·침식·운반·퇴적','용융·냉각','압축·변성'],a:0,exp:'암석이 부서져 퇴적물이 되는 과정이에요.',tag:'cycle'},
+  {q:'감람석과 휘석은 어떤 마그마에서 많이 만들어질까?',o:['염기성(SiO₂ 적음)','산성(SiO₂ 많음)','둘 다 아니다'],a:0,exp:'어두운 유색 광물이 많은 염기성 암석에 들어 있어요.',tag:'mineral'},
+  {q:'방해석의 주성분은?',o:['탄산칼슘','이산화규소','산화철'],a:0,exp:'방해석(CaCO₃)은 석회암·대리암의 주성분이에요.',tag:'mineral'}
+];
+const TAGNAME = {igneous:'화성암',sedimentary:'퇴적암',metamorphic:'변성암',cycle:'암석 순환',mineral:'광물'};
+
+/* 암석 순환 */
+const NODES = {
+  magma:{name:'마그마',icon:'🔥',x:180,y:44,ex:'땅속 깊은 곳의 뜨거운 액체 암석'},
+  igneous:{name:'화성암',icon:'🌋',x:316,y:128,ex:'현무암·화강암 등'},
+  sediment:{name:'퇴적물',icon:'🏖️',x:268,y:268,ex:'모래·진흙·자갈'},
+  sedimentary:{name:'퇴적암',icon:'📚',x:92,y:268,ex:'사암·석회암 등'},
+  metamorphic:{name:'변성암',icon:'〰️',x:44,y:128,ex:'편마암·대리암 등'}
+};
+const PROC = {
+  cool:{name:'냉각·응고',short:'냉각',icon:'❄️',color:'#38bdf8',desc:'마그마가 식어서 굳는다.'},
+  weather:{name:'풍화·침식·운반·퇴적',short:'풍화',icon:'🌬️',color:'#f59e0b',desc:'암석이 부서지고 옮겨져 쌓인다.'},
+  compact:{name:'다져짐·굳어짐(속성 작용)',short:'속성',icon:'🧱',color:'#a3e635',desc:'쌓인 퇴적물이 눌리고 붙어서 암석이 된다.'},
+  meta:{name:'열과 압력(변성 작용)',short:'변성',icon:'♨️',color:'#c084fc',desc:'열과 압력을 받아 광물과 조직이 변한다.'},
+  melt:{name:'용융(녹음)',short:'용융',icon:'🌡️',color:'#f87171',desc:'높은 열에 녹아 마그마가 된다.'}
+};
+const EDGES = [
+  ['magma','igneous','cool'],['igneous','sediment','weather'],['sedimentary','sediment','weather'],['metamorphic','sediment','weather'],
+  ['sediment','sedimentary','compact'],['igneous','metamorphic','meta'],['sedimentary','metamorphic','meta'],
+  ['igneous','magma','melt'],['sedimentary','magma','melt'],['metamorphic','magma','melt']
+];
+
+/* =========================================================
+   전역 상태
+========================================================= */
+const DEFAULT_SET = {classes:[],factorySeconds:120,runnerMeters:500,hintsOn:true,cats:['igneous','sedimentary','metamorphic']};
+const PT = {coin:1, mineral:15, quiz:20, clear:60};   // 점수표
+let SET = Object.assign({}, DEFAULT_SET, LS.get('rock_set', {}));
+if (!Array.isArray(SET.classes)) SET.classes = [];
+function newGame(nick, cls) {
+  return {nickname:nick,className:cls || '',score:0,collected:0,coins:0,inv:{},success:0,ca:0,wa:0,qr:0,qw:0,best:0,wk:{},qt:{},pz:0,pzDone:false,done:{},tries:{},
+    t:Date.now(),charId:LS.get('rock_char','m1'),rank:0,rankTotal:0,sync:'idle'};
+}
+let G = newGame('', '');
+let R = null, F = null, PZ = null, J = null;
+
+function refreshInfo() {
+  $('di-nick').textContent = G.nickname; $('di-min').textContent = G.collected; $('di-score').textContent = G.score;
+  if ($('fac-score')) $('fac-score').textContent = G.score;
+}
+function invChips() {
+  const ids = Object.keys(G.inv).filter(k => G.inv[k] > 0);
+  if (!ids.length) return '<span class="text-gray-500">아직 없음</span>';
+  return ids.map(k => '<span class="inline-block px-1.5 py-0.5 mr-1 mb-1 rounded bg-gray-700 text-sm" style="border-left:4px solid ' + MATERIALS[k].color + '">' + MATERIALS[k].name + ' ×' + G.inv[k] + '</span>').join('');
+}
+function giveMat(id, noScore) {
+  G.inv[id] = (G.inv[id] || 0) + 1; G.collected++;
+  if (!noScore) G.score += PT.mineral;
+  refreshInfo();
+}
+function giveCoin() { G.coins++; G.score += PT.coin; }
+function rec(rockId, ok) {
+  const w = G.wk[rockId] || (G.wk[rockId] = [0, 0]);
+  w[ok ? 0 : 1]++;
+}
+
+/* =========================================================
+   서버 (Google Apps Script 웹앱)
+========================================================= */
+const SERVER_URL = '';   // 여기에 웹앱 주소를 넣어 두면 학생 링크에 ?s=가 필요 없어요 (선택)
+const SRV_RE = /^https:\/\/script\.google\.com\/(a\/macros\/[A-Za-z0-9.\-]+\/|macros\/)s\/[A-Za-z0-9_\-]+\/exec$/;
+let SRV = '';
+(function () {
+  try {
+    const q = new URLSearchParams(location.search).get('s');
+    if (q && SRV_RE.test(q)) LS.set('rock_srv', q);
+  } catch (e) {}
+  const saved = LS.get('rock_srv', '');
+  SRV = SERVER_URL || (typeof saved === 'string' && SRV_RE.test(saved) ? saved : '');
+})();
+const LB = {mode: SRV ? 'loading' : 'local', top: [], tab: 'all'};
+const SV = {pinSet: null};
+
+async function api(action, payload, timeoutMs) {
+  if (!SRV) throw new Error('no-server');
+  const ctl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+  const tm = setTimeout(() => { if (ctl) ctl.abort(); }, timeoutMs || 15000);
+  try {
+    const res = await fetch(SRV, {
+      method: 'POST', headers: {'Content-Type': 'text/plain;charset=utf-8'},
+      body: JSON.stringify(Object.assign({a: action}, payload || {})), signal: ctl ? ctl.signal : undefined, redirect: 'follow'
+    });
+    return await res.json();
+  } finally { clearTimeout(tm); }
+}
+function playerId() {
+  let p = LS.get('rock_pid', '');
+  if (typeof p !== 'string' || !/^[A-Za-z0-9]{12,24}$/.test(p)) {
+    const abc = 'abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789'; p = '';
+    const buf = new Uint8Array(16);
+    try { crypto.getRandomValues(buf); } catch (e) { for (let i = 0; i < 16; i++) buf[i] = Math.floor(Math.random() * 256); }
+    for (let i = 0; i < 16; i++) p += abc[buf[i] % abc.length];
+    LS.set('rock_pid', p);
+  }
+  return p;
+}
+async function initServer() {
+  if (!SRV) { LB.mode = 'local'; renderRanking(); renderSrvState(); return; }
+  LB.mode = 'loading'; renderRanking();
+  try {
+    const r = await api('init', {}, 25000);
+    if (!r || !r.ok) throw new Error('bad');
+    SV.pinSet = !!r.pinSet; LB.top = Array.isArray(r.top) ? r.top : []; LB.mode = 'server';
+    if (r.settings) applySettings(r.settings);
+  } catch (e) { LB.mode = 'error'; }
+  renderRanking(); renderClassBadge(); renderClassSelect(); renderSrvState();
+  if (LB.mode === 'server') flushPending();
+}
+async function refreshRanking() {
+  if (!SRV) { renderRanking(); return; }
+  LB.mode = 'loading'; renderRanking();
+  try {
+    const r = await api('top', {}, 20000);
+    if (!r || !r.ok) throw new Error('bad');
+    LB.top = r.top || []; LB.mode = 'server';
+  } catch (e) { LB.mode = 'error'; }
+  renderRanking();
+}
+function renderSrvState() {
+  const el = $('srv-state'); if (!el) return;
+  el.textContent = !SRV ? '○ 서버 미연결 — 기록이 이 기기에만 저장돼요.' : LB.mode === 'error' ? '△ 서버에 연결하지 못했어요 (주소 또는 네트워크 확인)' : '● 서버 연결됨 — 기록이 모두의 명예의 전당에 올라가요.';
+}
+
+/* 전송 대기열: 서버가 느리거나 끊겼을 때 기록을 잃지 않도록 */
+function pendingList() { const p = LS.get('rock_pending', []); return Array.isArray(p) ? p : []; }
+function addPending(rec) { const l = pendingList().filter(x => x.t !== rec.t); l.push(rec); LS.set('rock_pending', l.slice(-5)); }
+function removePending(t) { LS.set('rock_pending', pendingList().filter(x => x.t !== t)); }
+async function flushPending() {
+  const l = pendingList();
+  for (const rec of l) {
+    try { const r = await api('submit', {pid: playerId(), rec}, 20000); if (r && r.ok) { removePending(rec.t); LB.top = r.top || LB.top; } else if (r && r.err === 'bad-pid') removePending(rec.t); } catch (e) { return; }
+  }
+  renderRanking();
+}
+let syncSeq = 0;
+async function syncRecord() {
+  const rec = buildRecord(), seq = ++syncSeq;
+  if (!SRV) { G.sync = 'local'; updateResSync(); return; }
+  G.sync = 'sending'; updateResSync();
+  try {
+    const r = await api('submit', {pid: playerId(), rec}, 25000);
+    if (!r || !r.ok) throw new Error(r && r.err || 'fail');
+    removePending(rec.t);
+    LB.top = r.top || LB.top; LB.mode = 'server';
+    if (seq === syncSeq) { G.rank = r.rank; G.rankTotal = r.total; G.sync = 'ok'; }
+  } catch (e) {
+    addPending(rec);
+    if (seq === syncSeq) G.sync = 'fail';
+  }
+  updateResSync(); renderRanking();
+}
+function updateResSync() {
+  const rk = $('res-rank'), nt = $('res-note'), rt = $('res-retry'); if (!rk) return;
+  rt.style.display = 'none'; $('res-code').style.display = G.sync === 'local' ? '' : 'none'; rk.textContent = '';
+  if (G.sync === 'sending') nt.textContent = '🏆 명예의 전당에 기록을 보내는 중…';
+  else if (G.sync === 'ok') { rk.textContent = '🏆 전체 ' + G.rankTotal + '명 중 ' + G.rank + '위!'; nt.textContent = '내 최고 기록 기준이에요. 더 높은 점수에 도전해 보세요!'; }
+  else if (G.sync === 'fail') { nt.textContent = '⚠️ 서버에 보내지 못했어요. 기록은 이 기기에 저장돼 있고 다음 접속 때 다시 보내요.'; rt.style.display = ''; }
+  else if (G.sync === 'local') nt.textContent = '※ 서버가 연결되지 않아 이 기기에만 저장돼요.';
+  else nt.textContent = '';
+}
+
+/* =========================================================
+   설정 / 로그인 / 랭킹 / 도감
+========================================================= */
+function applySettings(o) {
+  const cats = Array.isArray(o.cats) ? o.cats.filter(c => CATS[c]) : [];
+  const classes = (Array.isArray(o.classes) ? o.classes : []).map(c => String(c).trim().slice(0, 12)).filter(Boolean).slice(0, 12);
+  SET = {
+    classes,
+    factorySeconds: Math.min(180, Math.max(60, parseInt(o.factorySeconds) || 120)),
+    runnerMeters: Math.min(1000, Math.max(300, parseInt(o.runnerMeters) || 500)),
+    hintsOn: o.hintsOn !== false && o.hintsOn !== 0,
+    cats: cats.length ? cats : DEFAULT_SET.cats.slice()
+  };
+  LS.set('rock_set', SET);
+}
+function renderClassBadge() {
+  $('class-badge').textContent = '공장 ' + SET.factorySeconds + '초 · 러너 ' + SET.runnerMeters + 'm · 힌트 ' + (SET.hintsOn ? '허용' : '금지');
+}
+function renderClassSelect() {
+  const sel = $('input-class'), txt = $('input-class-text'), last = LS.get('rock_cls', '');
+  if (SET.classes.length) {
+    sel.innerHTML = '<option value="">반을 선택하세요</option>' + SET.classes.map(c => '<option value="' + esc(c) + '">' + esc(c) + '</option>').join('');
+    sel.value = SET.classes.includes(last) ? last : '';
+    sel.style.display = ''; txt.style.display = 'none';
+  } else {
+    sel.style.display = 'none'; txt.style.display = '';
+    if (!txt.value && typeof last === 'string') txt.value = last;
+  }
+}
+function currentClass() {
+  return SET.classes.length ? $('input-class').value : $('input-class-text').value.trim().slice(0, 12);
+}
+function onClassChange() { renderRanking(); }
+function startFlow() {
+  const nick = $('input-nickname').value.trim();
+  if (!nick) { toast('닉네임을 입력해주세요!'); return; }
+  const cls = currentClass();
+  if (SET.classes.length && !cls) { toast('반을 선택해주세요!'); return; }
+  const cc = $('input-classcode').value.replace(/\s+/g, '');
+  if (cc) {
+    const o = readCode(cc, 'RS1');
+    if (!o) { toast('수업 코드가 올바르지 않아요. 다시 확인해주세요.'); return; }
+    applySettings(o); renderClassBadge(); renderClassSelect();
+  }
+  LS.set('rock_nick', nick); LS.set('rock_cls', cls);
+  playSound('phase');
+  G = newGame(nick, cls);
+  $('user-info').style.display = 'flex'; refreshInfo();
+  renderChars(); show('screen-char');
+}
+function restartGame() {
+  const nick = G.nickname, cls = G.className; G = newGame(nick, cls); refreshInfo();
+  renderChars(); show('screen-char');
+}
+function goHome() { renderRanking(); refreshRanking(); $('user-info').style.display = 'none'; show('screen-login'); }
+function titleOf(s) { return s < 300 ? '견습 연구원' : s < 700 ? '탐사 연구원' : s < 1200 ? '수석 지질학자' : '지구의 연금술사'; }
+
+function rankRows(list, limit) {
+  const medal = ['🥇', '🥈', '🥉'];
+  return list.slice(0, limit).map((r, i) => '<div class="flex justify-between items-center gap-2 border-b border-gray-700/50 py-1"><span class="truncate">' + (medal[i] || (i + 1) + '.') + ' ' + esc(r.n) + (r.c ? ' <span class="text-gray-500">(' + esc(r.c) + ')</span>' : '') + '</span><span class="text-yellow-400 whitespace-nowrap">' + r.s + '점</span></div>').join('');
+}
+function renderRanking() {
+  const el = $('ranking-list'), st = $('lb-status'), tabs = $('lb-tabs'), title = $('lb-title');
+  const showTabs = LB.mode === 'server';
+  tabs.style.display = showTabs ? 'grid' : 'none';
+  ['all', 'cls'].forEach(k => { $('lb-tab-' + k).style.background = LB.tab === k ? '#b45309' : ''; });
+  if (LB.mode === 'loading') { title.textContent = '🏆 명예의 전당'; st.textContent = '서버에서 불러오는 중… (처음엔 몇 초 걸릴 수 있어요)'; el.innerHTML = ''; return; }
+  if (LB.mode === 'server') {
+    title.textContent = '🏆 명예의 전당';
+    let list = LB.top, cls = currentClass();
+    if (LB.tab === 'cls') { list = cls ? list.filter(r => r.c === cls) : []; st.textContent = cls ? '우리 반 (' + cls + ')' : '위에서 반을 먼저 골라 주세요.'; }
+    else st.textContent = '전교 TOP 10';
+    el.innerHTML = list.length ? rankRows(list, 10) : '<p class="text-gray-500">아직 등록된 기록이 없어요. 첫 번째 주인공이 되어 보세요!</p>';
+    return;
+  }
+  const recs = LS.get('rock_records', []).slice().sort((a, b) => b.s - a.s);
+  title.textContent = '🏆 명예의 전당 (이 기기)';
+  st.textContent = LB.mode === 'error' ? '⚠️ 서버에 연결하지 못했어요. 이 기기 기록을 보여줘요.' : '서버가 연결되지 않아 이 기기의 TOP 5만 보여요.';
+  el.innerHTML = recs.length ? rankRows(recs, 5) : '<p class="text-gray-500">아직 등록된 기록이 없습니다.</p>';
+}
+function setLbTab(k) { LB.tab = k; renderRanking(); }
+function showLeaderboard() {
+  const cls = G.className;
+  const build = list => list.length ? '<div class="text-left text-base space-y-1">' + rankRows(list, 15) + '</div>' : '<p class="text-gray-400">아직 기록이 없어요.</p>';
+  const list = LB.mode === 'server' ? LB.top : LS.get('rock_records', []).slice().sort((a, b) => b.s - a.s);
+  openModal({icon: '🏆', title: '명예의 전당', html: '<p class="text-sm text-gray-400 mb-2">' + (LB.mode === 'server' ? '전교 TOP 15' : '이 기기 기록') + '</p>' + build(list),
+    buttons: [{label: '닫기', cls: 'bg-gray-600 hover:bg-gray-500'}]});
+}
+function buildRecord() {
+  return {n:G.nickname,c:G.className,s:G.score,cn:G.coins,m:G.collected,k:G.success,ca:G.ca,wa:G.wa,qr:G.qr,qw:G.qw,pz:G.pz,ch:G.charId,wk:G.wk,qt:G.qt,t:G.t};
+}
+function saveRecord() {
+  const r = buildRecord(); const recs = LS.get('rock_records', []);
+  const i = recs.findIndex(x => x.t === r.t && x.n === r.n);
+  if (i >= 0) recs[i] = r; else recs.push(r);
+  LS.set('rock_records', recs.slice(-300));
+}
+function unlockCodex(id) {
+  const list = LS.get('rock_codex', []); if (list.includes(id)) return false;
+  list.push(id); LS.set('rock_codex', list); return true;
+}
+function openCodex() {
+  const list = LS.get('rock_codex', []);
+  const html = '<p class="text-gray-400 mb-2">공장에서 암석을 출고하면 도감에 등록돼요. (' + list.length + '/' + ROCKS.length + ')</p><div class="space-y-1.5 text-left">' +
+    ROCKS.map(r => {
+      if (!list.includes(r.id)) return '<div class="bg-gray-900 rounded p-2 text-gray-500">🔒 ??? <span class="text-sm">(' + CATS[r.cat].name + ')</span></div>';
+      let extra = '';
+      if (r.cat === 'metamorphic') extra = ' <span class="text-purple-300">원래 암석: ' + ROCK_BY_ID[r.target.rock].name + '</span>';
+      if (r.cat === 'igneous') extra = ' <span class="text-red-300">' + (r.target.cool === 'fast' ? '화산암' : '심성암') + '</span>';
+      return '<div class="bg-gray-900 rounded p-2"><b class="text-yellow-300">' + r.icon + ' ' + r.name + '</b> <span class="text-sm text-gray-400">' + CATS[r.cat].name + '</span>' + extra + '<br><span class="text-gray-300">' + esc(r.desc) + '</span></div>';
+    }).join('') + '</div>';
+  openModal({icon:'📖', title:'암석 도감', html, buttons:[{label:'닫기', cls:'bg-gray-600 hover:bg-gray-500'}]});
+}
+function updateCodexCount() { $('codex-count').textContent = '(' + LS.get('rock_codex', []).length + '/' + ROCKS.length + ')'; }
+
+/* 서버 주소 설정 (교사용) */
+function openServerSetup() {
+  openModal({
+    icon: '🔗', title: '서버 주소',
+    html: '<p class="text-sm text-gray-300 mb-2">Apps Script 웹앱 주소(…/exec)를 붙여넣으세요. 비우고 저장하면 서버 없이 이 기기에서만 동작해요.</p><input id="srv-input" type="text" placeholder="https://script.google.com/macros/s/…/exec" class="w-full px-3 py-2 bg-gray-900 text-white rounded border border-gray-600">',
+    buttons: []
+  });
+  $('srv-input').value = SRV || '';
+  setModalButtons([{label: '저장', keep: true, fn: () => {
+    const v = $('srv-input').value.trim();
+    if (v && !SRV_RE.test(v)) { toast('주소 형식이 달라요. script.google.com … /exec 로 끝나야 해요.'); return; }
+    if (v) LS.set('rock_srv', v); else LS.del('rock_srv');
+    closeModal(); toast('저장했어요. 새로 불러옵니다…');
+    setTimeout(() => { location.href = location.pathname; }, 600);
+  }}, {label: '취소', cls: 'bg-gray-600 hover:bg-gray-500'}]);
+}
+
+
+/* =========================================================
+   캐릭터 (귀여운 2D 벡터 치비 캐릭터)
+========================================================= */
+const CHAR_H = 46;
+function charW(ch) { return ch.build === 'big' ? 34 : ch.build === 'slim' ? 26 : 30; }
+function shade(hex, f) {
+  const n = parseInt(hex.slice(1), 16); let r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+  if (f < 1) { r *= f; g *= f; b *= f; } else { r += (255 - r) * (f - 1); g += (255 - g) * (f - 1); b += (255 - b) * (f - 1); }
+  return 'rgb(' + Math.round(r) + ',' + Math.round(g) + ',' + Math.round(b) + ')';
+}
+function rr(c, x, y, w, h, r) {
+  r = Math.max(0, Math.min(r, w / 2, h / 2));
+  c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r);
+  c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath();
+}
+function ell(c, x, y, rx, ry, rot) { c.beginPath(); c.ellipse(x, y, rx, ry, rot || 0, 0, Math.PI * 2); }
+function fs(c) { c.fill(); c.stroke(); }
+function limb(c, x1, y1, x2, y2, wd, col, ol) {
+  c.lineCap = 'round';
+  c.strokeStyle = ol; c.lineWidth = wd + 2.4; c.beginPath(); c.moveTo(x1, y1); c.lineTo(x2, y2); c.stroke();
+  c.strokeStyle = col; c.lineWidth = wd; c.beginPath(); c.moveTo(x1, y1); c.lineTo(x2, y2); c.stroke();
+  c.strokeStyle = ol; c.lineWidth = 1.4;
+}
+function star5(c, x, y, r) {
+  c.beginPath();
+  for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, rad = i % 2 ? r * 0.45 : r; c[i ? 'lineTo' : 'moveTo'](x + Math.cos(a) * rad, y + Math.sin(a) * rad); }
+  c.closePath();
+}
+
+/* (x, y) = 캐릭터 상자의 왼쪽 위. 상자 크기 = charW(ch) × CHAR_H */
+function drawCharacter(c, ch, x, y, t, air, noShadow) {
+  const w = charW(ch), cx = x + w / 2, OL = '#3b2a32';
+  const run = air ? 0 : Math.sin(t * 0.35), bob = air ? 0 : Math.abs(Math.sin(t * 0.35)) * 1.6;
+  const big = ch.build === 'big', slim = ch.build === 'slim';
+  const bw = big ? 22 : slim ? 14 : 17;                     // 몸통 너비
+  const hx = cx, hy = y + 12.5 - bob;                        // 머리 중심
+  const tTop = y + 22.5 - bob, tH = 10;                        // 몸통 위치
+  const hip = tTop + tH - 1, footY = y + CHAR_H - 1;
+  const legC = ch.skirt ? ch.skin : ch.pants, armT = big ? 6.5 : 4.4;
+  c.save(); c.lineJoin = 'round'; c.lineCap = 'round'; c.lineWidth = 1.4; c.strokeStyle = OL;
+
+  if (!noShadow && !air) { c.fillStyle = 'rgba(0,0,0,.28)'; ell(c, cx, footY + 1, w * 0.42, 2.4); c.fill(); }
+
+  // ── 뒤쪽 머리카락 ──
+  c.fillStyle = ch.hair;
+  if (ch.hairStyle === 'long') { rr(c, hx - 14, hy - 5, 28, 31 - bob * 0, 9); fs(c); }
+  if (ch.hairStyle === 'bob') { rr(c, hx - 13.6, hy - 5, 27.2, 20, 8); fs(c); }
+  if (ch.hairStyle === 'ponytail') { ell(c, hx - 13.5, hy + 3 + run * 1.8, 4.2, 8, 0.25 + run * 0.2); fs(c); }
+
+  // ── 뒤쪽 팔 ──
+  const sh = (side) => ({x: cx + side * (bw / 2 - 1), y: tTop + 3});
+  const armAng = air ? [2.5, -2.3] : [run * 0.95 + 0.15, -run * 0.95 - 0.15];   // [앞팔, 뒷팔]
+  const sleeve = ch.detail === 'tank' ? ch.skin : ch.shirt;
+  function arm(side, ang) {
+    const s = sh(side), L1 = 5, L2 = 5;
+    const mx = s.x + Math.sin(ang) * L1, my = s.y + Math.cos(ang) * L1, hx2 = s.x + Math.sin(ang) * (L1 + L2), hy2 = s.y + Math.cos(ang) * (L1 + L2);
+    limb(c, s.x, s.y, mx, my, armT, sleeve, OL);
+    limb(c, mx, my, hx2, hy2, armT - 0.6, ch.skin, OL);
+    c.fillStyle = ch.skin; c.beginPath(); c.arc(hx2, hy2, armT / 2 + 0.6, 0, 7); c.fill();
+  }
+  arm(-1, armAng[1]);
+
+  // ── 다리 ──
+  const lift = [air ? 3 : Math.max(0, run) * 3.4, air ? 1 : Math.max(0, -run) * 3.4];
+  [-1, 1].forEach((s, i) => {
+    const lx = cx + (s < 0 ? -(big ? 7 : 6) : 1), lw = big ? 6.2 : 5.2, bottom = footY - lift[i];
+    c.fillStyle = legC; rr(c, lx, hip - 1, lw, bottom - hip + 1, 2.4); fs(c);
+    c.fillStyle = ch.shoe || '#f8fafc'; rr(c, lx - 0.8, bottom - 3.6, lw + 2.6, 4, 2); fs(c);
+  });
+
+  // ── 몸통 ──
+  c.fillStyle = ch.shirt; rr(c, cx - bw / 2, tTop, bw, tH + 1, big ? 5 : 4.5); fs(c);
+  if (ch.skirt) {
+    c.fillStyle = ch.pants; c.beginPath(); c.moveTo(cx - bw / 2 - 0.5, hip - 3); c.lineTo(cx + bw / 2 + 0.5, hip - 3);
+    c.lineTo(cx + bw / 2 + 3.5, hip + 3.5); c.lineTo(cx - bw / 2 - 3.5, hip + 3.5); c.closePath(); fs(c);
+  }
+  const tx = cx + 0.5, ty = tTop + 5.4;
+  c.lineWidth = 1;
+  switch (ch.detail) {
+    case 'bolt': c.fillStyle = '#1e3a8a'; c.beginPath(); c.moveTo(tx + 1.5, ty - 4.5); c.lineTo(tx - 3, ty + 1); c.lineTo(tx - 0.2, ty + 1); c.lineTo(tx - 1.6, ty + 5); c.lineTo(tx + 3.4, ty - 1.2); c.lineTo(tx + 0.4, ty - 1.2); c.closePath(); c.fill(); break;
+    case 'tank': c.fillStyle = 'rgba(255,255,255,.85)'; rr(c, cx - bw / 2 + 1, tTop + 5, bw - 2, 2, 1); c.fill(); rr(c, cx - bw / 2 + 1, tTop + 8, bw - 2, 1.6, 1); c.fill(); break;
+    case 'star': c.fillStyle = '#fde68a'; star5(c, tx, ty, 4.2); c.fill(); break;
+    case 'coat': c.fillStyle = '#60a5fa'; rr(c, cx - 2.2, tTop + 0.5, 4.4, tH, 1.6); c.fill();
+      c.fillStyle = '#cbd5e1'; rr(c, cx + 3.2, tTop + 5.5, 4, 3, 1); c.fill(); break;
+    case 'flame': c.fillStyle = '#fde047'; c.beginPath(); c.moveTo(tx, ty + 4.2); c.quadraticCurveTo(tx - 5, ty + 0.4, tx - 1, ty - 5); c.quadraticCurveTo(tx + 0.2, ty - 1.5, tx + 2.2, ty - 2.4); c.quadraticCurveTo(tx + 6, ty + 1, tx, ty + 4.2); c.fill(); break;
+    case 'compass': c.fillStyle = '#f8fafc'; c.beginPath(); c.arc(tx, ty, 3.9, 0, 7); c.fill(); c.stroke();
+      c.strokeStyle = '#dc2626'; c.lineWidth = 1.4; c.beginPath(); c.moveTo(tx - 1.6, ty + 1.6); c.lineTo(tx + 1.6, ty - 1.6); c.stroke(); c.strokeStyle = OL; break;
+  }
+  c.lineWidth = 1.4;
+
+  // ── 앞쪽 팔 ──
+  arm(1, armAng[0]);
+
+  // ── 머리 ──
+  c.fillStyle = ch.skin; ell(c, hx, hy, 12.2, 11.6); fs(c);
+  // 눈 · 볼터치 · 입
+  const ey = hy + 2.4;
+  c.fillStyle = '#2b1b22';
+  [[hx + 0.3], [hx + 7.2]].forEach(e => { ell(c, e[0], ey, 2.1, 2.7); c.fill(); });
+  c.fillStyle = '#fff';
+  [[hx + 0.3], [hx + 7.2]].forEach(e => { c.beginPath(); c.arc(e[0] + 0.7, ey - 1, 0.95, 0, 7); c.fill(); c.beginPath(); c.arc(e[0] - 0.6, ey + 1.2, 0.5, 0, 7); c.fill(); });
+  c.fillStyle = 'rgba(244,114,128,.5)'; ell(c, hx - 3.4, hy + 6.6, 2.3, 1.4); c.fill(); ell(c, hx + 10.2, hy + 6.6, 2.0, 1.4); c.fill();
+  c.strokeStyle = '#7f1d1d'; c.lineWidth = 1.1;
+  if (air) { c.fillStyle = '#7f1d1d'; ell(c, hx + 4.4, hy + 7.4, 1.5, 1.8); c.fill(); }
+  else { c.beginPath(); c.arc(hx + 4.4, hy + 6.2, 1.8, 0.15 * Math.PI, 0.85 * Math.PI); c.stroke(); }
+  c.strokeStyle = OL; c.lineWidth = 1.4;
+
+  // 안경(머리카락 아래에 그려지도록 먼저)
+  if (ch.acc === 'glasses') {
+    c.fillStyle = 'rgba(186,230,253,.35)'; c.lineWidth = 1.3;
+    ell(c, hx + 0.3, ey, 3.9, 3.9); fs(c); ell(c, hx + 7.2, ey, 3.9, 3.9); fs(c);
+    c.beginPath(); c.moveTo(hx + 4.2, ey - 0.4); c.lineTo(hx + 3.4, ey - 0.4); c.stroke(); c.lineWidth = 1.4;
+  }
+
+  // ── 앞머리 ──
+  c.fillStyle = ch.hair;
+  const style = ch.hairStyle;
+  if (style === 'buzz') {
+    c.beginPath(); c.ellipse(hx, hy - 0.5, 12.7, 12, 0, Math.PI + 0.3, 2 * Math.PI - 0.3); c.closePath(); fs(c);
+  } else {
+    if (style === 'spiky') {
+      [[-10, -6, -9.5, -17, -3.5, -10], [-5, -9, 0, -19, 4.5, -9.5], [3, -9, 9.5, -17, 11.2, -5]].forEach(p => {
+        c.beginPath(); c.moveTo(hx + p[0], hy + p[1]); c.lineTo(hx + p[2], hy + p[3]); c.lineTo(hx + p[4], hy + p[5]); c.closePath(); fs(c);
+      });
+    }
+    c.beginPath();
+    c.ellipse(hx, hy - 0.5, 12.9, 12.3, 0, Math.PI, 2 * Math.PI);
+    c.lineTo(hx + 12.9, hy + 3.2);
+    c.quadraticCurveTo(hx + 10, hy - 4.2, hx + 4.2, hy - 3.6);
+    c.quadraticCurveTo(hx + 1, hy - 0.8, hx - 2.6, hy - 3.8);
+    c.quadraticCurveTo(hx - 8, hy - 1.2, hx - 12.9, hy + 4.6);
+    c.closePath(); fs(c);
+    if (style === 'long' || style === 'bob') { // 옆머리
+      rr(c, hx - 13.6, hy - 1, 4.4, style === 'long' ? 17 : 11, 2.2); fs(c);
+    }
+    if (style === 'ponytail') { c.fillStyle = '#f43f5e'; ell(c, hx - 11.4, hy - 3, 2.2, 2.2); fs(c); }
+  }
+  // 머리 장식
+  if (ch.acc === 'headband' || ch.acc === 'band') {
+    c.fillStyle = ch.acc === 'headband' ? '#ef4444' : '#facc15';
+    rr(c, hx - 12.6, hy - 7.4, 25.2, 4, 2); fs(c);
+    if (ch.acc === 'headband') { c.beginPath(); c.moveTo(hx - 12.2, hy - 5.4); c.lineTo(hx - 18, hy - 2 + run * 1.5); c.lineTo(hx - 12.2, hy - 3.2); c.closePath(); fs(c); }
+  }
+  if (ch.acc === 'hat') {
+    c.fillStyle = '#d6a05a'; ell(c, hx, hy - 6.4, 15.6, 3.4); fs(c);
+    c.fillStyle = '#e9b872'; rr(c, hx - 9, hy - 16.4, 18, 11, 6); fs(c);
+    c.fillStyle = '#92400e'; rr(c, hx - 9, hy - 9.4, 18, 3.2, 1); c.fill();
+  }
+  c.restore();
+}
+function statBar(v, color) {
+  return '<div class="h-2 bg-gray-700 rounded"><div class="h-2 rounded ' + color + '" style="width:' + Math.round(Math.min(1, Math.max(0.05, v)) * 100) + '%"></div></div>';
+}
+function charStats(ch) {
+  return {hp: ch.hp / 5, speed: (ch.speed - 0.7) / 0.55, jump: ch.jumps === 3 ? 1 : 0.5 + (ch.jumpPower - 10.5) / 4, magnet: ch.magnet / 130};
+}
+function paintPreview(canvas, ch, scale) {
+  const c = canvas.getContext('2d'); c.clearRect(0, 0, canvas.width, canvas.height);
+  c.save(); c.scale(scale, scale);
+  drawCharacter(c, ch, (canvas.width / scale - charW(ch)) / 2, (canvas.height / scale - CHAR_H) / 2 + 2, 0, false);
+  c.restore();
+}
+function renderChars() {
+  const grid = $('char-grid'); grid.innerHTML = '';
+  CHARACTERS.forEach(ch => {
+    const on = ch.id === G.charId;
+    const b = document.createElement('button');
+    const s = charStats(ch);
+    b.className = 'p-2 rounded-lg pixel-btn text-center space-y-1 ' + (on ? 'bg-gray-700' : 'bg-gray-800');
+    b.style.borderColor = on ? '#facc15' : '';
+    b.innerHTML = '<canvas width="96" height="116" id="cv-' + ch.id + '" class="mx-auto" style="width:72px;height:87px"></canvas><div class="text-base text-yellow-300">' + (ch.id[0] === 'm' ? '👦' : '👧') + ' ' + ch.name + '</div>' +
+      '<div class="text-sm text-gray-400">' + ch.title + '</div>' +
+      '<div class="text-sm text-left">체력' + statBar(s.hp, 'bg-red-500') + '속도' + statBar(s.speed, 'bg-cyan-400') + '점프' + statBar(s.jump, 'bg-lime-400') + '자석' + statBar(s.magnet, 'bg-fuchsia-400') + '</div>';
+    b.onclick = () => { G.charId = ch.id; LS.set('rock_char', ch.id); playSound('click'); renderChars(); };
+    grid.appendChild(b);
+    paintPreview($('cv-' + ch.id), ch, 2);
+  });
+  const ch = CHAR_BY_ID[G.charId];
+  $('char-detail').innerHTML = '<p class="text-base text-yellow-300">' + ch.name + ' — ' + ch.title + '</p><p class="text-gray-300">' + ch.trait + '</p>' +
+    '<p>❤️ 체력 ' + ch.hp + ' · 🏃 속도 ×' + ch.speed + ' · ⬆️ ' + ch.jumps + '단 점프 · 🧲 자석 ' + ch.magnet + '</p>' +
+    '<p class="text-fuchsia-300">' + ch.skillIcon + ' ' + ch.skillName + ' (재사용 ' + ch.cd + '초): <span class="text-gray-300">' + ch.skillDesc + '</span></p>';
+}
+function confirmChar() { playSound('phase'); renderBiomes(); show('screen-biome'); }
+function paintHeroes() {
+  try { paintPreview($('cv-hero1'), CHAR_BY_ID.m2, 2); paintPreview($('cv-hero2'), CHAR_BY_ID.f1, 2); } catch (e) {}
+}
+
+/* =========================================================
+   바이옴 선택
+========================================================= */
+function renderBiomes() {
+  const list = $('biome-list'); list.innerHTML = '';
+  BIOMES.forEach((b, idx) => {
+    const st = G.done[b.id], done = !!st, tries = G.tries[b.id] || 0;
+    const btn = document.createElement('button');
+    btn.className = 'w-full p-3 text-left pixel-btn rounded-lg flex justify-between items-center gap-2 ' + (done ? 'bg-gray-900 text-gray-500' : 'bg-gray-800 hover:bg-gray-700');
+    btn.innerHTML = '<div><h4 class="text-base ' + (done ? 'text-gray-400' : 'text-yellow-300') + '">' + b.name + (st === 'clear' ? ' ✅ 완주' : st === 'fail' ? ' 종료' : '') + '</h4><p class="text-sm text-gray-400">' + b.desc + '</p></div>' +
+      '<span class="text-sm ' + (done ? 'bg-gray-700' : 'bg-cyan-700') + ' px-2.5 py-1 rounded text-white whitespace-nowrap">' + (done ? '완료' : tries ? '재도전 🚀' : '탐험 🚀') + '</span>';
+    btn.onclick = () => { if (done) { toast('이미 완주한 바이옴이에요. 다른 곳을 탐험해 보세요!'); return; } startRunner(idx); };
+    list.appendChild(btn);
+  });
+  $('biome-inv').innerHTML = invChips();
+}
+
+
+/* =========================================================
+   러너 (코인 모으기 + 가끔 등장하는 광물 + 퀴즈 보석)
+========================================================= */
+const canvas = $('runner-canvas'), ctx = canvas.getContext('2d');
+const CW = 400, CH = 300, FLOOR = 256, CS = 1.15;
+const PH = CHAR_H * CS, GROUND = FLOOR - PH;
+const pW = ch => charW(ch) * CS;
+
+function startRunner(idx) {
+  const ch = CHAR_BY_ID[G.charId], b = BIOMES[idx];
+  G.tries[b.id] = (G.tries[b.id] || 0) + 1;
+  playSound('phase');
+  R = {
+    active: true, paused: false, quizOpen: false, biome: idx, ch,
+    hp: ch.hp, maxHp: ch.hp, distance: SET.runnerMeters, total: SET.runnerMeters, collected: 0, coins: 0, got: {}, qr: 0, qw: 0,
+    p: {x: 52, y: GROUND, vy: 0, w: pW(ch), h: PH, jumpCount: 0},
+    obs: [], cols: [], parts: [], pops: [], frame: 0, off: 0, base: 3.6 + idx * 0.4,
+    sinceObs: 0, gapObs: 520, sinceEv: 0, gapEv: 110, evCount: 0,
+    invincible: 0, shield: 0, dash: 0, slow: 0, scan: 0, skillCd: 0, toast: {t: '', f: 0}, shake: 0,
+    lastTs: null, acc: 0, raf: null
+  };
+  show('screen-runner');
+  $('rn-title').textContent = b.name;
+  $('rn-pause-ov').style.display = 'none'; $('btn-pause').textContent = '⏸';
+  $('skill-label').textContent = ch.skillIcon + ' ' + ch.skillName;
+  updateRunnerHud();
+  R.raf = requestAnimationFrame(runnerFrame);
+}
+function runnerJump() {
+  if (!R || !R.active || R.paused || R.quizOpen) return;
+  const p = R.p;
+  if (p.jumpCount < R.ch.jumps) { p.vy = -R.ch.jumpPower; p.jumpCount++; playSound('jump'); }
+}
+function runnerSkill() {
+  if (!R || !R.active || R.paused || R.quizOpen || R.skillCd > 0) return;
+  const ch = R.ch; R.skillCd = ch.cd * 60; playSound('skill');
+  R.toast = {t: ch.skillIcon + ' ' + ch.skillName + '!', f: 70};
+  switch (ch.skill) {
+    case 'shield': R.shield = 180; break;
+    case 'dash': R.dash = 72; R.invincible = Math.max(R.invincible, 72); break;
+    case 'scan': R.scan = 480; break;
+    case 'slow': R.slow = 240; break;
+    case 'blast': R.obs.forEach(o => burst(o.x + o.w / 2, o.y + o.h / 2, '#fbbf24', 10)); R.obs = []; R.shake = 12; break;
+    case 'heal': R.hp = Math.min(R.maxHp, R.hp + 1); R.invincible = Math.max(R.invincible, 120); break;
+  }
+}
+function togglePause() {
+  if (!R || !R.active || R.quizOpen) return;
+  R.paused = !R.paused;
+  $('rn-pause-ov').style.display = R.paused ? 'flex' : 'none';
+  $('btn-pause').textContent = R.paused ? '▶' : '⏸';
+  if (!R.paused) { R.lastTs = null; R.acc = 0; }
+}
+function burst(x, y, color, n) {
+  for (let i = 0; i < (n || 8); i++) R.parts.push({x, y, vx: rnd(-3, 3), vy: rnd(-4, 0), life: 30, color});
+}
+function hitBox(p, o) {
+  const px = p.x + 7, py = p.y + 5, pw = p.w - 14, ph = p.h - 7;
+  return px < o.x + o.w - 2 && px + pw > o.x + 2 && py < o.y + o.h - 2 && py + ph > o.y + 2;
+}
+function runnerFrame(ts) {
+  if (!R || !R.active) return;
+  if (R.lastTs == null) R.lastTs = ts;
+  const dt = Math.min(100, ts - R.lastTs); R.lastTs = ts;
+  if (!R.paused && !R.quizOpen) {
+    R.acc += dt;
+    while (R.acc >= 16.667 && R.active && !R.quizOpen) { runnerStep(); R.acc -= 16.667; }
+  }
+  if (!R) return;
+  drawRunner();
+  if (R.active) R.raf = requestAnimationFrame(runnerFrame);
+}
+
+/* 코인 무리/광물/퀴즈 보석을 만들어요. 반환값 = 무리의 가로 길이(px) */
+function spawnEvent() {
+  const b = BIOMES[R.biome], x0 = CW + 24, low = FLOOR - 28;
+  R.evCount++;
+  if (R.evCount % 15 === 0) { R.cols.push({k: 'quiz', x: x0, y: FLOOR - 88, r: 13}); return 20; }
+  if (Math.random() < 0.13) { R.cols.push({k: 'mineral', mat: pick(b.items), x: x0, y: FLOOR - rnd(56, 112), r: 12}); return 20; }
+  const pat = pick(['line', 'line', 'arc', 'stairs', 'high']);
+  let n = 5, span;
+  if (pat === 'arc') n = 7;
+  for (let i = 0; i < n; i++) {
+    let y = low;
+    if (pat === 'high') y = FLOOR - 98;
+    else if (pat === 'arc') y = low - 74 * Math.sin(Math.PI * i / (n - 1));
+    else if (pat === 'stairs') y = low - i * 17;
+    R.cols.push({k: 'coin', x: x0 + i * 26, y, r: 10});
+  }
+  span = (n - 1) * 26;
+  return span;
+}
+function runnerStep() {
+  const ch = R.ch, ts = R.slow > 0 ? 0.5 : 1, p = R.p, b = BIOMES[R.biome];
+  R.frame++;
+  const prog = 1 - R.distance / R.total;
+  const spd = R.base * (1 + 0.22 * prog) * ch.speed * (R.dash > 0 ? 2 : 1) * ts;
+  R.off += spd; R.distance -= spd * 0.046;
+  ['invincible', 'shield', 'dash', 'slow', 'scan', 'skillCd', 'shake'].forEach(k => { if (R[k] > 0) R[k]--; });
+  if (R.toast.f > 0) R.toast.f--;
+
+  R.sinceObs += spd; R.sinceEv += spd;
+  if (R.sinceObs >= R.gapObs && !R.cols.some(c => c.x > CW - 50)) {
+    R.sinceObs = 0; R.gapObs = rnd(270, 430) - R.biome * 14;
+    const r = Math.random(); let o;
+    if (r < 0.5 || R.biome === 0 && r < 0.7) o = {w: rnd(22, 30), h: rnd(26, 34)};
+    else if (r < 0.8) o = {w: 22, h: 54};
+    else o = {w: 48, h: 26};
+    o.x = CW + 10; o.y = FLOOR - o.h; R.obs.push(o);
+  }
+  if (R.sinceEv >= R.gapEv && !R.obs.some(o => o.x > CW - 90)) {
+    R.sinceEv = 0; R.gapEv = spawnEvent() + rnd(130, 210);
+  }
+
+  p.vy += 0.55 * ts; p.y += p.vy * ts;
+  if (p.y >= GROUND) { p.y = GROUND; p.vy = 0; p.jumpCount = 0; }
+
+  for (let i = R.obs.length - 1; i >= 0; i--) {
+    const o = R.obs[i]; o.x -= spd;
+    if (o.x + o.w < -10) { R.obs.splice(i, 1); continue; }
+    if (hitBox(p, o)) {
+      if (R.shield > 0 || R.dash > 0) {
+        burst(o.x + o.w / 2, o.y + o.h / 2, '#a8a29e', 8); R.obs.splice(i, 1);
+        if (R.shield > 0) { const m = pick(b.items); giveMat(m); R.collected++; R.got[m] = (R.got[m] || 0) + 1; playSound('collect'); R.pops.push({x: o.x, y: o.y, t: 30, s: '+' + MATERIALS[m].short}); }
+      } else if (R.invincible <= 0) {
+        R.hp--; R.invincible = 90; R.shake = 10; playSound('hit'); burst(p.x + 16, p.y + 16, '#ef4444', 10);
+        if (R.hp <= 0) { endRunner(false); return; }
+      }
+    }
+  }
+  const pcx = p.x + p.w / 2, pcy = p.y + p.h / 2, mr = R.scan > 0 ? 190 : ch.magnet;
+  for (let i = R.cols.length - 1; i >= 0; i--) {
+    const c = R.cols[i]; c.x -= spd;
+    const dx = pcx - c.x, dy = pcy - c.y, d = Math.hypot(dx, dy);
+    if (c.x < CW && d < mr && d > 1) { c.x += dx / d * 6; c.y += dy / d * 6; }
+    if (c.x < -40) { R.cols.splice(i, 1); continue; }
+    if (Math.abs(c.x - pcx) < p.w / 2 + c.r - 1 && Math.abs(c.y - pcy) < p.h / 2 + c.r - 3) {
+      R.cols.splice(i, 1);
+      if (c.k === 'quiz') { runnerQuiz(); return; }
+      if (c.k === 'coin') {
+        giveCoin(); R.coins++; playSound('coin'); burst(c.x, c.y, '#fde047', 4);
+      } else {
+        giveMat(c.mat); R.collected++; R.got[c.mat] = (R.got[c.mat] || 0) + 1; playSound('collect');
+        burst(c.x, c.y, MATERIALS[c.mat].color, 8); R.pops.push({x: c.x, y: c.y, t: 36, s: MATERIALS[c.mat].short + ' +1'});
+      }
+    }
+  }
+  for (let i = R.parts.length - 1; i >= 0; i--) {
+    const q = R.parts[i]; q.x += q.vx; q.y += q.vy; q.vy += 0.15; q.life--;
+    if (q.life <= 0) R.parts.splice(i, 1);
+  }
+  for (let i = R.pops.length - 1; i >= 0; i--) { R.pops[i].t--; R.pops[i].y -= 0.6; if (R.pops[i].t <= 0) R.pops.splice(i, 1); }
+  if (R.frame % 5 === 0) updateRunnerHud();
+  if (R.distance <= 0) { R.distance = 0; endRunner(true); }
+}
+function updateRunnerHud() {
+  let h = ''; for (let i = 0; i < R.maxHp; i++) h += i < R.hp ? '❤️' : '🖤';
+  $('rn-hearts').textContent = h;
+  $('rn-dist').textContent = Math.ceil(R.distance); $('rn-min').textContent = R.collected; $('rn-coin').textContent = R.coins;
+  const ready = R.skillCd <= 0;
+  $('skill-bar').style.width = ready ? '100%' : Math.round((1 - R.skillCd / (R.ch.cd * 60)) * 100) + '%';
+  $('skill-label').textContent = R.ch.skillIcon + ' ' + R.ch.skillName + (ready ? '' : ' ' + Math.ceil(R.skillCd / 60) + '초');
+  $('di-score').textContent = G.score; $('di-min').textContent = G.collected;
+}
+
+function drawRock(o) {
+  ctx.fillStyle = '#a8a29e'; ctx.beginPath();
+  ctx.moveTo(o.x, o.y + o.h); ctx.lineTo(o.x + o.w * 0.1, o.y + o.h * 0.35); ctx.lineTo(o.x + o.w * 0.4, o.y);
+  ctx.lineTo(o.x + o.w * 0.75, o.y + o.h * 0.2); ctx.lineTo(o.x + o.w, o.y + o.h * 0.6); ctx.lineTo(o.x + o.w, o.y + o.h);
+  ctx.closePath(); ctx.fill(); ctx.strokeStyle = '#1c1917'; ctx.lineWidth = 2; ctx.stroke();
+  ctx.fillStyle = 'rgba(255,255,255,.25)'; ctx.fillRect(o.x + o.w * 0.3, o.y + o.h * 0.25, o.w * 0.15, o.h * 0.2);
+}
+function drawBg(b, off) {
+  const g = ctx.createLinearGradient(0, 0, 0, FLOOR); g.addColorStop(0, b.sky[0]); g.addColorStop(1, b.sky[1]);
+  ctx.fillStyle = g; ctx.fillRect(0, 0, CW, CH);
+  ctx.fillStyle = b.far;
+  for (let i = 0; i < 6; i++) { const x = ((i * 150 - off * 0.25) % 900 + 900) % 900 - 150, h = 60 + ((i * 37) % 50); ctx.beginPath(); ctx.moveTo(x, FLOOR); ctx.lineTo(x + 75, FLOOR - h); ctx.lineTo(x + 150, FLOOR); ctx.fill(); }
+  ctx.fillStyle = b.near;
+  for (let i = 0; i < 5; i++) { const x = ((i * 190 - off * 0.5) % 950 + 950) % 950 - 190, h = 30 + ((i * 53) % 35); ctx.beginPath(); ctx.moveTo(x, FLOOR); ctx.lineTo(x + 95, FLOOR - h); ctx.lineTo(x + 190, FLOOR); ctx.fill(); }
+  const f = R.frame;
+  if (b.fx === 'cloud') { ctx.fillStyle = 'rgba(255,255,255,.35)'; for (let i = 0; i < 4; i++) { const x = ((i * 220 - off * 0.15) % 880 + 880) % 880 - 120; ctx.fillRect(x, 30 + i * 18, 90, 12); ctx.fillRect(x + 20, 22 + i * 18, 50, 10); } }
+  if (b.fx === 'bubble') { ctx.strokeStyle = 'rgba(255,255,255,.5)'; ctx.lineWidth = 1; for (let i = 0; i < 12; i++) { const x = ((i * 83 - off * 0.4) % 700 + 700) % 700 - 50, y = FLOOR - ((f * 0.6 + i * 41) % FLOOR); ctx.beginPath(); ctx.arc(x, y, 3 + (i % 3), 0, 7); ctx.stroke(); } }
+  if (b.fx === 'spark') { ctx.fillStyle = 'rgba(216,180,254,.8)'; for (let i = 0; i < 14; i++) { const x = ((i * 71 - off * 0.35) % 680 + 680) % 680 - 40, y = 20 + (i * 37) % 200; if ((f + i * 7) % 40 < 20) ctx.fillRect(x, y, 3, 3); } }
+  if (b.fx === 'ember') { ctx.fillStyle = 'rgba(251,146,60,.9)'; for (let i = 0; i < 16; i++) { const x = ((i * 59 - off * 0.5) % 660 + 660) % 660 - 30, y = FLOOR - ((f * 0.9 + i * 29) % FLOOR); ctx.fillRect(x, y, 3, 3); } }
+  ctx.fillStyle = b.floor; ctx.fillRect(0, FLOOR, CW, CH - FLOOR);
+  ctx.fillStyle = b.top; ctx.fillRect(0, FLOOR, CW, 5);
+  ctx.fillStyle = 'rgba(0,0,0,.2)';
+  for (let i = 0; i < 12; i++) { const x = ((i * 60 - off) % 720 + 720) % 720 - 30; ctx.fillRect(x, FLOOR + 14 + (i % 3) * 9, 24, 4); }
+}
+function drawCoin(c, f) {
+  const sx = 0.3 + 0.7 * Math.abs(Math.cos(f * 0.08 + c.x * 0.03));
+  ctx.fillStyle = '#facc15'; ctx.strokeStyle = '#b45309'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.ellipse(c.x, c.y, c.r * sx, c.r, 0, 0, 7); ctx.fill(); ctx.stroke();
+  ctx.strokeStyle = '#fde68a'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.ellipse(c.x, c.y, c.r * sx * 0.55, c.r * 0.6, 0, 0, 7); ctx.stroke();
+}
+function drawRunner() {
+  const b = BIOMES[R.biome], p = R.p;
+  ctx.save();
+  if (R.shake > 0) ctx.translate(rnd(-3, 3), rnd(-2, 2));
+  drawBg(b, R.off);
+  R.obs.forEach(drawRock);
+  R.cols.forEach(c => {
+    if (c.k === 'coin') { drawCoin(c, R.frame); return; }
+    if (c.k === 'quiz') {
+      ctx.fillStyle = '#fde047'; ctx.beginPath(); ctx.arc(c.x, c.y, c.r + Math.sin(R.frame * 0.2) * 1.5, 0, 7); ctx.fill();
+      ctx.strokeStyle = '#a16207'; ctx.lineWidth = 2; ctx.stroke();
+      ctx.fillStyle = '#78350f'; ctx.font = 'bold 18px Jua, sans-serif'; ctx.textAlign = 'center'; ctx.fillText('?', c.x, c.y + 6);
+      return;
+    }
+    const m = MATERIALS[c.mat], r = c.r + 2;
+    ctx.fillStyle = m.color; ctx.beginPath(); ctx.moveTo(c.x, c.y - r); ctx.lineTo(c.x + r, c.y); ctx.lineTo(c.x, c.y + r); ctx.lineTo(c.x - r, c.y); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; ctx.stroke();
+    ctx.font = '13px Jua, sans-serif'; ctx.textAlign = 'center'; ctx.lineWidth = 3; ctx.strokeStyle = '#000'; ctx.strokeText(m.short, c.x, c.y - r - 3); ctx.fillStyle = '#fff'; ctx.fillText(m.short, c.x, c.y - r - 3);
+  });
+  R.parts.forEach(q => { ctx.globalAlpha = Math.max(0, q.life / 30); ctx.fillStyle = q.color; ctx.fillRect(q.x, q.y, 4, 4); }); ctx.globalAlpha = 1;
+  if (R.dash > 0) { ctx.strokeStyle = 'rgba(255,255,255,.6)'; ctx.lineWidth = 2; for (let i = 0; i < 6; i++) { const y = p.y + 6 + i * 8; ctx.beginPath(); ctx.moveTo(p.x - 10, y); ctx.lineTo(p.x - 40 - (i % 3) * 12, y); ctx.stroke(); } }
+  // 그림자 (높이에 따라 작아져요)
+  const hgt = Math.max(0, (GROUND - p.y) / 120);
+  ctx.fillStyle = 'rgba(0,0,0,' + (0.3 - hgt * 0.15) + ')'; ctx.beginPath(); ctx.ellipse(p.x + p.w / 2, FLOOR + 3, p.w * 0.42 * (1 - hgt * 0.4), 3.4, 0, 0, 7); ctx.fill();
+  if (!(R.invincible > 0 && R.shield <= 0 && R.dash <= 0 && R.frame % 8 < 4)) {
+    ctx.save(); ctx.translate(p.x, p.y); ctx.scale(CS, CS);
+    drawCharacter(ctx, R.ch, 0, 0, R.frame, p.y < GROUND - 1, true);
+    ctx.restore();
+  }
+  const mx = p.x + p.w / 2, my = p.y + p.h / 2;
+  if (R.shield > 0) { ctx.strokeStyle = 'rgba(96,165,250,.9)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(mx, my, 36, 0, 7); ctx.stroke(); }
+  if (R.scan > 0) { ctx.strokeStyle = 'rgba(232,121,249,' + (0.3 + 0.3 * Math.sin(R.frame * 0.2)) + ')'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(mx, my, 100 + Math.sin(R.frame * 0.2) * 8, 0, 7); ctx.stroke(); }
+  if (R.slow > 0) { ctx.fillStyle = 'rgba(56,189,248,.14)'; ctx.fillRect(0, 0, CW, CH); }
+  R.pops.forEach(q => { ctx.globalAlpha = Math.min(1, q.t / 14); ctx.font = 'bold 15px Jua, sans-serif'; ctx.textAlign = 'center'; ctx.lineWidth = 3; ctx.strokeStyle = '#000'; ctx.strokeText(q.s, q.x, q.y); ctx.fillStyle = '#67e8f9'; ctx.fillText(q.s, q.x, q.y); }); ctx.globalAlpha = 1;
+  if (R.toast.f > 0) { ctx.globalAlpha = Math.min(1, R.toast.f / 20); ctx.fillStyle = '#fde047'; ctx.font = 'bold 24px Jua, sans-serif'; ctx.textAlign = 'center'; ctx.strokeStyle = '#000'; ctx.lineWidth = 4; ctx.strokeText(R.toast.t, CW / 2, 56); ctx.fillText(R.toast.t, CW / 2, 56); ctx.globalAlpha = 1; }
+  ctx.restore();
+}
+
+function runnerQuiz() {
+  R.quizOpen = true; playSound('phase');
+  const q = pick(QUIZ), opts = shuffle(q.o.map((t, i) => ({t, ok: i === q.a})));
+  openModal({
+    icon: '❓', title: '광물 퀴즈!', html: '<p class="text-yellow-200 text-lg mb-1">' + esc(q.q) + '</p>',
+    build: body => {
+      opts.forEach(o => {
+        const b = document.createElement('button');
+        b.className = 'w-full mt-2 py-2.5 px-3 bg-gray-700 hover:bg-gray-600 pixel-btn rounded-lg text-base text-white';
+        b.textContent = o.t; b.dataset.ok = o.ok ? '1' : '0';
+        b.onclick = () => answerRunnerQuiz(q, o.ok, b, body);
+        body.appendChild(b);
+      });
+    },
+    buttons: []
+  });
+}
+function answerRunnerQuiz(q, ok, btn, body) {
+  body.querySelectorAll('button').forEach(b => { b.disabled = true; if (b.dataset.ok === '1') b.classList.add('sel-on'); });
+  let msg;
+  if (ok) {
+    playSound('success'); G.qr++; R.qr++;
+    const n = 3 * (R.ch.quizBonus || 1), b = BIOMES[R.biome], pts = PT.quiz * (R.ch.quizBonus || 1);
+    for (let i = 0; i < n; i++) { const m = pick(b.items); giveMat(m, true); R.collected++; R.got[m] = (R.got[m] || 0) + 1; }
+    G.score += pts; refreshInfo();
+    msg = '<p class="mt-2 text-green-300">🎉 정답! 광물 +' + n + '개 · ' + pts + '점' + (R.ch.quizBonus > 1 ? ' (박사 보너스 ×2)' : '') + '</p>';
+  } else {
+    playSound('wrong'); G.qw++; R.qw++; G.qt[q.tag] = (G.qt[q.tag] || 0) + 1; btn.style.background = '#b91c1c';
+    msg = '<p class="mt-2 text-red-300">아쉬워요! 초록색이 정답이에요.</p>';
+  }
+  const ex = document.createElement('div'); ex.innerHTML = msg + '<p class="mt-1 text-gray-300 text-sm">💡 ' + esc(q.exp) + '</p>'; body.appendChild(ex);
+  setModalButtons([{label: '계속 달리기 ➔', fn: () => { R.quizOpen = false; R.lastTs = null; R.acc = 0; updateRunnerHud(); }}]);
+}
+
+function endRunner(success) {
+  R.active = false; cancelAnimationFrame(R.raf); $('rn-pause-ov').style.display = 'none';
+  const bid = BIOMES[R.biome].id;
+  const bonus = success ? PT.clear + R.hp * 10 : 0; G.score += bonus; refreshInfo();
+  if (success) { G.done[bid] = 'clear'; const cl = LS.get('rock_cleared', []); if (!cl.includes(bid)) { cl.push(bid); LS.set('rock_cleared', cl); } }
+  else if ((G.tries[bid] || 0) >= 2) G.done[bid] = 'fail';
+  playSound(success ? 'success' : 'wrong');
+  const got = Object.keys(R.got).map(k => MATERIALS[k].name + ' ×' + R.got[k]).join(', ') || '없음';
+  const left = BIOMES.filter(b => !G.done[b.id]).length;
+  const buttons = [{label: '🏭 공장 가동하기 ➔', fn: startFactory}];
+  if (left > 0) buttons.push({label: success ? '🗺️ 다른 바이옴도 탐험하기' : '🗺️ 바이옴 선택으로', cls: 'bg-cyan-700 hover:bg-cyan-600', fn: () => { renderBiomes(); show('screen-biome'); }});
+  openModal({
+    icon: success ? '🎉' : '💥', title: success ? BIOMES[R.biome].name + ' 탐험 완료!' : '탐험 실패… 하지만!',
+    html: '<p class="text-lg">🪙 코인 <b class="text-yellow-300">' + R.coins + '개</b> · 💎 광물 <b class="text-cyan-300">' + R.collected + '개</b></p><p class="text-sm text-gray-300">' + got + '</p>' +
+      '<p>광물 퀴즈 <b class="text-green-300">' + R.qr + '</b> 정답 / <b class="text-red-300">' + R.qw + '</b> 오답</p>' +
+      (success ? '<p class="text-yellow-300">완주 보너스 +' + bonus + '점 (남은 체력 ' + R.hp + '개 × 10 포함)</p>' : '<p class="text-gray-300">모은 코인과 광물은 그대로 가져가요.' + (G.done[bid] ? '' : ' 이 바이옴은 한 번 더 도전할 수 있어요!') + '</p>'),
+    buttons
+  });
+}
+
+window.addEventListener('keydown', e => {
+  if (!R || !R.active) return;
+  if (e.code === 'Space') { e.preventDefault(); if (!e.repeat) runnerJump(); }
+  else if (e.code === 'KeyS' && !e.repeat) runnerSkill();
+});
+document.addEventListener('visibilitychange', () => { if (document.hidden && R && R.active && !R.paused && !R.quizOpen) togglePause(); });
+canvas.addEventListener('pointerdown', e => { e.preventDefault(); runnerJump(); });
+$('btn-jump').addEventListener('pointerdown', e => { e.preventDefault(); runnerJump(); });
+$('btn-skill').addEventListener('pointerdown', e => { e.preventDefault(); runnerSkill(); });
+
+
+/* =========================================================
+   공장 (120초 타임어택)
+========================================================= */
+function startFactory() {
+  playSound('phase'); closeModal();
+  if (F && F.timer) clearInterval(F.timer);
+  F = {timeLeft: SET.factorySeconds, cap: Math.round(SET.factorySeconds * 1.25), bag: [], order: null, mode: 'build', hint: 0, sel: {}, streak: 0, n: 0, popup: false, timer: null};
+  show('screen-game');
+  $('fac-timer').textContent = F.timeLeft; $('fac-success').textContent = 0; $('fac-streak').textContent = 0;
+  $('hint-btn').style.display = SET.hintsOn ? '' : 'none';
+  nextOrder();
+  F.timer = setInterval(() => {
+    if (F.popup) return;
+    F.timeLeft--; $('fac-timer').textContent = Math.max(0, F.timeLeft);
+    $('fac-timer').className = F.timeLeft <= 15 ? 'text-red-400 text-lg pulse' : 'text-red-400 text-lg';
+    if (F.timeLeft <= 0) endFactory();
+  }, 1000);
+}
+function poolIds() {
+  const ids = ROCKS.filter(r => SET.cats.includes(r.cat)).map(r => r.id);
+  return ids.length ? ids : ROCKS.map(r => r.id);
+}
+function setStatus(msg) { $('factory-status').textContent = msg; }
+function nextOrder() {
+  if (!F.bag.length) F.bag = shuffle(poolIds());
+  F.order = ROCK_BY_ID[F.bag.pop()]; F.mode = Math.random() < 0.3 ? 'identify' : 'build';
+  F.hint = 0; F.sel = {}; F.n++;
+  const o = F.order;
+  $('order-num').textContent = F.n;
+  $('order-mode').textContent = F.mode === 'build' ? '제조 주문' : '수수께끼 감정 주문';
+  $('mission-hint').style.display = 'none'; $('mission-hint').innerHTML = '';
+  $('factory-icon').textContent = F.mode === 'build' ? o.icon : '❓';
+  updateHintBtn();
+  $('fac-badge').textContent = F.mode === 'build' ? '분류 단계' : '감정 단계'; $('fac-badge').className = 'px-2 py-1 bg-amber-600 text-white text-sm rounded';
+  $('fac-inv').innerHTML = invChips();
+  $('control-panel').style.display = 'none';
+  if (F.mode === 'build') {
+    $('mission-title').textContent = o.name + '을(를) 만들어라!';
+    $('mission-needs').innerHTML = '필요 광물: ' + o.needs.map(m => '<span class="' + (G.inv[m] > 0 ? 'text-green-300' : 'text-gray-500') + '">' + MATERIALS[m].name + (G.inv[m] > 0 ? '×' + G.inv[m] : '') + '</span>').join(' · ') + ' <span class="text-gray-500">(가지고 있으면 +30)</span>';
+    $('panel-identify').style.display = 'none'; $('panel-category').style.display = 'block'; setStatus('대분류 선택 중…');
+  } else {
+    $('mission-title').textContent = '이 암석의 정체는?';
+    $('mission-needs').textContent = '단서를 읽고 알맞은 암석 이름을 고르세요.';
+    $('panel-category').style.display = 'none'; $('panel-identify').style.display = 'block'; setStatus('감정 중…');
+    renderIdentify();
+  }
+  refreshInfo();
+}
+function updateHintBtn() {
+  $('hint-btn').textContent = F.hint >= 3 ? '💡 힌트 모두 열람' : '💡 힌트 ' + (F.hint + 1) + '/3 (점수 -10)';
+}
+function useHint() {
+  if (!SET.hintsOn || F.hint >= 3) return;
+  F.hint++; playSound('click');
+  const box = $('mission-hint'); box.style.display = 'block';
+  box.innerHTML = F.order.hints.slice(0, F.hint).map((h, i) => '<div>💡 ' + (i + 1) + '. ' + esc(h) + '</div>').join('');
+  updateHintBtn();
+}
+function renderIdentify() {
+  const o = F.order; $('id-clue').textContent = o.clue;
+  const same = ROCKS.filter(r => r.cat === o.cat && r.id !== o.id), other = ROCKS.filter(r => r.cat !== o.cat);
+  let d = shuffle(same).slice(0, 3); if (d.length < 3) d = d.concat(shuffle(other).slice(0, 3 - d.length));
+  const box = $('id-options'); box.innerHTML = '';
+  shuffle([o].concat(d)).forEach(r => {
+    const b = document.createElement('button');
+    b.className = 'p-3 bg-gray-700 hover:bg-gray-600 text-base text-white pixel-btn rounded-lg';
+    b.textContent = r.icon + ' ' + r.name;
+    b.onclick = () => {
+      if (r.id === o.id) orderSuccess(60);
+      else { playSound('wrong'); G.wa++; G.score = Math.max(0, G.score - 10); rec(o.id, false); b.disabled = true; setStatus('❌ 다른 암석이에요! 단서를 다시 읽어보세요.'); refreshInfo(); }
+    };
+    box.appendChild(b);
+  });
+}
+function selectCategory(cat) {
+  playSound('click');
+  if (cat !== F.order.cat) {
+    playSound('wrong'); G.wa++; G.score = Math.max(0, G.score - 20); rec(F.order.id, false);
+    setStatus('❌ 이 암석은 ' + CATS[cat].name + '이(가) 아니에요!'); refreshInfo(); return;
+  }
+  playSound('success');
+  $('fac-badge').textContent = CATS[cat].name; setStatus('세부 공정 설정 중…');
+  $('panel-category').style.display = 'none'; $('control-panel').style.display = 'block';
+  renderControl(cat);
+}
+function group(key, label, opts, cols, multi) {
+  return '<div><label class="block text-sm text-yellow-400 mb-1">' + label + '</label><div class="grid grid-cols-' + cols + ' gap-1.5">' +
+    opts.map(o => '<button data-k="' + key + '" data-v="' + o[0] + '" onclick="pickOpt(\'' + key + '\',\'' + o[0] + '\',this,' + (multi ? 1 : 0) + ')" class="p-2 bg-gray-700 text-sm text-white pixel-btn rounded">' + o[1] + '</button>').join('') + '</div></div>';
+}
+function renderControl(cat) {
+  const p = $('control-panel'); F.sel = {};
+  let h = '';
+  if (cat === 'igneous') {
+    const init = 40 + Math.floor(Math.random() * 41);
+    h = '<div><label class="block text-sm text-yellow-400 mb-1">1. SiO₂ 함량: <span id="val-sio2" class="text-white">' + init + '</span>% — <span id="val-sio2-type" class="text-cyan-300"></span></label>' +
+      '<input type="range" id="input-sio2" min="40" max="80" value="' + init + '" class="w-full" oninput="sio2Change()"></div>' +
+      group('mineral', '2. 주된 조암 광물', [['dark', '유색 광물<br>(감람석·휘석)'], ['medium', '중간<br>(각섬석 등)'], ['light', '무색 광물<br>(석영·장석)']], 3) +
+      group('cool', '3. 마그마가 식은 곳(냉각 속도)', [['fast', '지표 부근·빠름<br>(화산암)'], ['slow', '땅속 깊은 곳·느림<br>(심성암)']], 2);
+  } else if (cat === 'sedimentary') {
+    h = group('material', '1. 무엇이 쌓였나요?', [['sand', '모래'], ['mud', '진흙'], ['gravel', '자갈'], ['shell', '조개·산호']], 4) +
+      group('process', '2. 퇴적물에 일어나는 작용 (알맞은 것을 모두 선택)', [['compaction', '다져짐<br>(압축)'], ['cementation', '굳어짐<br>(교결)'], ['melting', '녹여서<br>식힘']], 3, true) +
+      group('acid', '3. 확인 실험: 묽은 염산을 떨어뜨리면?', [['yes', '거품이 난다'], ['no', '반응 없다']], 2);
+  } else {
+    h = group('rock', '1. 원래 암석(모암)', [['granite', '화강암'], ['mudstone', '이암(셰일)'], ['sandstone', '사암'], ['limestone', '석회암']], 4) +
+      group('force', '2. 변성 요인', [['pressure', '강한 압력'], ['heat', '마그마의 열']], 2) +
+      group('structure', '3. 변성 조직', [['foliation', '엽리(줄무늬) 생김'], ['non', '엽리 없음<br>(균일하게 재결정)']], 2);
+  }
+  h += '<button onclick="submitBuild()" class="w-full py-3 bg-amber-600 hover:bg-amber-500 text-white text-base pixel-btn rounded-lg">🧪 ' + CATS[cat].name + ' 출고 실행!</button>';
+  p.innerHTML = h;
+  if (cat === 'igneous') sio2Change(true);
+}
+function sio2Change(silent) {
+  const v = +$('input-sio2').value; $('val-sio2').textContent = v;
+  $('val-sio2-type').textContent = v < 52 ? '염기성' : v < 63 ? '중성' : '산성';
+  if (!silent) playSound('click');
+}
+function pickOpt(key, val, btn, multi) {
+  playSound('click');
+  if (multi) {
+    const arr = F.sel[key] || (F.sel[key] = []); const i = arr.indexOf(val);
+    if (i >= 0) { arr.splice(i, 1); btn.classList.remove('sel-on'); } else { arr.push(val); btn.classList.add('sel-on'); }
+  } else {
+    F.sel[key] = val;
+    document.querySelectorAll('[data-k="' + key + '"]').forEach(b => b.classList.remove('sel-on'));
+    btn.classList.add('sel-on');
+  }
+}
+function checkBuild() {
+  const o = F.order, t = o.target, s = F.sel, bad = [];
+  if (o.cat === 'igneous') {
+    const v = +$('input-sio2').value;
+    if (v < t.sio2[0] || v > t.sio2[1]) bad.push('SiO₂ 함량');
+    if (s.mineral !== t.mineral) bad.push('주된 광물');
+    if (s.cool !== t.cool) bad.push('냉각 속도(식은 곳)');
+  } else if (o.cat === 'sedimentary') {
+    if (s.material !== t.material) bad.push('퇴적물 종류');
+    if ((s.process || []).slice().sort().join() !== 'cementation,compaction') bad.push('퇴적물에 일어나는 작용');
+    if (s.acid !== (t.acid ? 'yes' : 'no')) bad.push('염산 반응 실험');
+  } else {
+    if (s.rock !== t.rock) bad.push('원래 암석');
+    if (!t.force.includes(s.force)) bad.push('변성 요인');
+    if (s.structure !== t.structure) bad.push('변성 조직(엽리)');
+  }
+  return bad;
+}
+function submitBuild() {
+  const bad = checkBuild();
+  if (!bad.length) { orderSuccess([100, 90, 80, 70][F.hint]); return; }
+  playSound('wrong'); G.wa++; G.score = Math.max(0, G.score - 15); rec(F.order.id, false);
+  F.streak = 0; $('fac-streak').textContent = 0;
+  setStatus('❌ 다시 확인: ' + bad.join(', ')); refreshInfo();
+}
+function orderSuccess(base) {
+  const o = F.order; playSound('success');
+  if (F.mode === 'identify') base = Math.max(30, base - F.hint * 10);
+  F.streak++; G.best = Math.max(G.best, F.streak);
+  let pts = base; const lines = ['기본 +' + base];
+  if (F.streak >= 2) { const cb = Math.min(F.streak - 1, 5) * 10; pts += cb; lines.push('🔥 ' + F.streak + '연속 콤보 +' + cb); }
+  const used = o.needs.find(m => G.inv[m] > 0);
+  if (used) { G.inv[used]--; pts += 30; lines.push('⛏️ ' + MATERIALS[used].name + ' 사용 +30'); }
+  G.score += pts; G.success++; G.ca++; rec(o.id, true);
+  F.timeLeft = Math.min(F.cap, F.timeLeft + 3); $('fac-timer').textContent = F.timeLeft;
+  $('fac-success').textContent = G.success; $('fac-streak').textContent = F.streak;
+  const isNew = unlockCodex(o.id); updateCodexCount(); refreshInfo();
+  F.popup = true;
+  openModal({
+    icon: o.icon, title: o.name + ' 출고 성공!',
+    html: '<p>' + esc(o.desc) + '</p><div class="bg-gray-900 rounded p-2 mt-2 text-sm text-gray-300">' + lines.join('<br>') + '<br><b class="text-yellow-300">합계 +' + pts + '점 · 시간 +3초</b></div>' + (isNew ? '<p class="mt-2 text-fuchsia-300">📖 도감에 새로 등록됐어요!</p>' : ''),
+    buttons: [{label: '다음 주문 접수 ➔', fn: () => { F.popup = false; if (F.timeLeft <= 0) endFactory(); else nextOrder(); }}]
+  });
+}
+function endFactory() {
+  if (F.timer) clearInterval(F.timer); F.timer = null; F.popup = false; closeModal();
+  playSound('phase'); renderResult(); saveRecord(); show('screen-result'); syncRecord();
+}
+
+/* =========================================================
+   결과 · 복습 리포트
+========================================================= */
+function renderResult() {
+  const ch = CHAR_BY_ID[G.charId], tot = G.ca + G.wa, qtot = G.qr + G.qw;
+  $('res-nick').textContent = G.nickname; $('res-class').textContent = G.className ? '(' + G.className + ')' : '';
+  $('res-title').textContent = titleOf(G.score); $('res-char').textContent = ch.name;
+  $('res-min').textContent = G.collected; $('res-coin').textContent = G.coins; $('res-count').textContent = G.success; $('res-best').textContent = G.best + '연속';
+  $('res-acc').textContent = tot ? Math.round(G.ca / tot * 100) + '% (' + G.ca + '/' + tot + ')' : '-';
+  $('res-quiz').textContent = qtot ? G.qr + '/' + qtot : '-';
+  $('res-score').textContent = G.score;
+  $('bonus-prompt').style.display = G.pzDone ? 'none' : 'block';
+  const weak = Object.keys(G.wk).filter(id => G.wk[id][1] > 0).sort((a, b) => G.wk[b][1] - G.wk[a][1]).slice(0, 3);
+  let h = '<h3 class="text-base text-yellow-400">📝 복습 리포트</h3>';
+  if (!weak.length) h += '<p class="text-green-300">틀린 암석이 없어요! 정말 훌륭해요 👏</p>';
+  else h += '<p class="text-gray-400">자주 틀린 암석이에요. 이 개념을 다시 확인해 보세요.</p>' + weak.map(id => { const r = ROCK_BY_ID[id]; return '<div class="bg-gray-900 rounded p-2"><b class="text-yellow-300">' + r.icon + ' ' + r.name + '</b> <span class="text-red-300">(오답 ' + G.wk[id][1] + '회)</span><br><span class="text-gray-300">' + esc(r.desc) + '</span></div>'; }).join('');
+  const qt = Object.keys(G.qt).filter(k => G.qt[k] > 0);
+  if (qt.length) h += '<p class="text-gray-300">❓ 광물 퀴즈 오답 주제: ' + qt.map(k => TAGNAME[k] + ' ' + G.qt[k] + '회').join(', ') + '</p>';
+  $('report').innerHTML = h;
+  updateCodexCount(); updateResSync();
+}
+function showResultCode() {
+  saveRecord();
+  const code = makeCode('RR1', buildRecord());
+  openModal({
+    icon: '📨', title: '결과 코드',
+    html: '<p class="text-sm text-gray-300 mb-2">아래 코드를 복사해서 선생님께 제출하세요.</p><textarea id="rc-text" readonly rows="4" class="w-full px-2 py-1 bg-gray-900 text-green-300 rounded border border-gray-600 text-sm">' + code + '</textarea>',
+    buttons: [{label: '📋 복사하기', keep: true, fn: () => copyText(code)}, {label: '닫기', cls: 'bg-gray-600 hover:bg-gray-500'}]
+  });
+}
+
+/* =========================================================
+   암석 순환 퍼즐
+========================================================= */
+function startPuzzle() {
+  playSound('phase');
+  PZ = {stage: 1, guess: EDGES.map(() => null), locked: EDGES.map(() => false), flash: new Set(), brush: null, wrongCount: 0};
+  J = null;
+  $('pz-stage1').style.display = 'block'; $('pz-stage2').style.display = 'none';
+  $('pz-msg').textContent = ''; $('pz-procdesc').textContent = '';
+  renderPalette(); renderSvg(); updatePzHeader(); show('screen-puzzle');
+}
+function s1Score() { return Math.max(0, PZ.locked.filter(Boolean).length * 20 - PZ.wrongCount * 5); }
+function pzTotal() { return s1Score() + (J ? J.loops.size * 50 : 0); }
+function updatePzHeader() {
+  $('pz-step').textContent = PZ.stage === 1 ? '① 순환도 완성' : '② 순환 여행';
+  $('pz-score').textContent = pzTotal();
+}
+function renderPalette() {
+  const box = $('pz-palette'); box.innerHTML = '';
+  Object.keys(PROC).forEach(k => {
+    const b = document.createElement('button'); const p = PROC[k];
+    b.className = 'p-2 text-sm text-white pixel-btn rounded text-left ' + (PZ.brush === k ? 'ring-2 ring-white' : '');
+    b.style.background = p.color + '99';
+    b.textContent = p.icon + ' ' + p.name;
+    b.onclick = () => { PZ.brush = k; $('pz-procdesc').textContent = p.icon + ' ' + p.desc; playSound('click'); renderPalette(); };
+    box.appendChild(b);
+  });
+}
+function edgeGeom(e) {
+  const a = NODES[e[0]], b = NODES[e[1]], dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy), ux = dx / len, uy = dy / len, r = 32;
+  const sx = a.x + ux * r, sy = a.y + uy * r, ex = b.x - ux * (r + 4), ey = b.y - uy * (r + 4);
+  const paired = EDGES.some(o => o[0] === e[1] && o[1] === e[0]), off = paired ? 26 : 0, nx = -uy, ny = ux;
+  const cx = (sx + ex) / 2 + nx * off * 2, cy = (sy + ey) / 2 + ny * off * 2;
+  return {sx, sy, ex, ey, cx, cy, bx: 0.25 * sx + 0.5 * cx + 0.25 * ex, by: 0.25 * sy + 0.5 * cy + 0.25 * ey};
+}
+function renderSvg() {
+  const cols = {gray: '#6b7280', red: '#ef4444'}; Object.keys(PROC).forEach(k => cols[k] = PROC[k].color);
+  let s = '<defs>' + Object.keys(cols).map(k => '<marker id="ar-' + k + '" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="' + cols[k] + '"/></marker>').join('') + '</defs>';
+  const stage = PZ.stage;
+  EDGES.forEach((e, i) => {
+    const g = edgeGeom(e); let key = 'gray', dash = ' stroke-dasharray="5 4"', w = 2.2;
+    if (stage === 1) {
+      if (PZ.flash.has(i)) key = 'red'; else if (PZ.guess[i]) { key = PZ.guess[i]; dash = ''; }
+      if (PZ.locked[i]) { key = e[2]; dash = ''; w = 3; }
+    } else { key = e[2]; dash = ''; w = J && J.used.has(i) ? 4.5 : 2.2; if (J && J.last === i) w = 6; }
+    s += '<path d="M' + g.sx + ' ' + g.sy + ' Q' + g.cx + ' ' + g.cy + ' ' + g.ex + ' ' + g.ey + '" fill="none" stroke="' + cols[key] + '" stroke-width="' + w + '"' + dash + ' marker-end="url(#ar-' + key + ')" opacity="' + (stage === 2 && !(J && J.used.has(i)) ? 0.55 : 1) + '"/>';
+  });
+  Object.keys(NODES).forEach(k => {
+    const n = NODES[k], cur = stage === 2 && J && J.node === k;
+    s += '<g><circle cx="' + n.x + '" cy="' + n.y + '" r="30" fill="#1f2937" stroke="' + (cur ? '#fde047' : '#6b7280') + '" stroke-width="' + (cur ? 4 : 2) + '"' + (cur ? ' class="pulse"' : '') + '/>' +
+      '<text x="' + n.x + '" y="' + (n.y - 2) + '" text-anchor="middle" font-size="22">' + n.icon + '</text>' +
+      '<text x="' + n.x + '" y="' + (n.y + 16) + '" text-anchor="middle" font-size="12" fill="#e5e7eb">' + n.name + '</text></g>';
+  });
+  if (stage === 1) {
+    EDGES.forEach((e, i) => {
+      const g = edgeGeom(e), p = PZ.guess[i] ? PROC[PZ.guess[i]] : null, lk = PZ.locked[i];
+      s += '<g data-edge="' + i + '" style="cursor:pointer"><circle cx="' + g.bx + '" cy="' + g.by + '" r="15" fill="' + (lk ? '#166534' : p ? p.color : '#111827') + '" stroke="' + (PZ.flash.has(i) ? '#ef4444' : '#e5e7eb') + '" stroke-width="2"/>' +
+        '<text x="' + g.bx + '" y="' + (g.by + 4) + '" text-anchor="middle" font-size="' + (p ? 12 : 17) + '" fill="#fff">' + (p ? p.short : '?') + '</text></g>';
+    });
+  }
+  const svg = $('pz-svg'); svg.innerHTML = s;
+  if (stage === 1) svg.querySelectorAll('[data-edge]').forEach(g => g.addEventListener('click', () => clickEdge(+g.getAttribute('data-edge'))));
+}
+function clickEdge(i) {
+  if (PZ.stage !== 1 || PZ.locked[i]) return;
+  if (!PZ.brush) { toast('먼저 아래에서 지질 작용을 고르세요!'); return; }
+  PZ.guess[i] = PZ.brush; PZ.flash.delete(i); playSound('click'); renderSvg();
+}
+function resetPuzzle() { PZ.guess = PZ.guess.map((g, i) => PZ.locked[i] ? g : null); PZ.flash.clear(); $('pz-msg').textContent = ''; renderSvg(); }
+function checkPuzzle() {
+  const wrong = []; let empty = 0;
+  PZ.guess.forEach((g, i) => {
+    if (PZ.locked[i]) return;
+    if (g == null) { empty++; return; }
+    if (g === EDGES[i][2]) PZ.locked[i] = true; else { wrong.push(i); PZ.wrongCount++; }
+  });
+  PZ.flash = new Set(wrong); wrong.forEach(i => PZ.guess[i] = null);
+  const left = PZ.locked.filter(x => !x).length;
+  renderSvg(); updatePzHeader();
+  if (left === 0) {
+    playSound('success');
+    openModal({
+      icon: '🔄', title: '순환도 완성!',
+      html: '<p>화성암·퇴적암·변성암은 <b class="text-yellow-300">어느 것이든</b> 다른 암석으로 바뀌거나, 녹아서 마그마가 되거나, 부서져 퇴적물이 돼요.</p><p class="mt-2">어디에도 <b class="text-yellow-300">막다른 길이 없죠?</b> 이제 직접 암석이 되어 여행하며 끝없는 순환을 확인해 봐요!</p>',
+      buttons: [{label: '🚶 순환 여행 떠나기 ➔', fn: startJourney}]
+    });
+    return;
+  }
+  if (wrong.length) { playSound('wrong'); $('pz-msg').textContent = '❌ 빨간 화살표 ' + wrong.length + '개는 다시 생각해 보세요! (정답인 화살표는 고정돼요)'; }
+  else if (empty) { $('pz-msg').textContent = '아직 비어 있는 화살표가 ' + empty + '개 있어요.'; playSound('click'); }
+  else playSound('wrong');
+}
+function startJourney() {
+  PZ.stage = 2; J = {node: 'magma', path: ['magma'], used: new Set(), loops: new Set(), steps: 0, last: -1};
+  $('pz-stage1').style.display = 'none'; $('pz-stage2').style.display = 'block';
+  renderJourney();
+}
+function renderJourney() {
+  const n = NODES[J.node], outs = EDGES.map((e, i) => [e, i]).filter(x => x[0][0] === J.node);
+  $('jr-card').innerHTML = '<div class="text-4xl">' + n.icon + '</div><div class="text-xl text-yellow-300">지금의 나: ' + n.name + '</div><div class="text-sm text-gray-400">' + n.ex + '</div>';
+  const box = $('jr-options'); box.innerHTML = '<p class="text-sm text-cyan-300">✅ 출구가 ' + outs.length + '가지 열려 있어요! 어떤 일이 일어날까요?</p>';
+  outs.forEach(([e, i]) => {
+    const p = PROC[e[2]], b = document.createElement('button');
+    b.className = 'p-2.5 text-sm text-white pixel-btn rounded-lg text-left'; b.style.background = p.color + '88';
+    b.innerHTML = p.icon + ' <b>' + p.name + '</b><br><span class="text-sm text-gray-200">' + p.desc + '</span>';
+    b.onclick = () => journeyMove(i);
+    box.appendChild(b);
+  });
+  $('jr-log').innerHTML = J.path.map(k => '<span class="px-1.5 py-0.5 bg-gray-700 rounded">' + NODES[k].icon + NODES[k].name + '</span>').join('<span>→</span>');
+  $('jr-loops').textContent = '🔁 찾은 순환 고리: ' + J.loops.size + ' / 3 · 이동 ' + J.steps + '번';
+  renderSvg(); updatePzHeader();
+}
+function normCycle(c) {
+  const m = c.indexOf(c.slice().sort()[0]); return c.slice(m).concat(c.slice(0, m)).join('>');
+}
+function journeyMove(ei) {
+  const e = EDGES[ei]; J.steps++; J.used.add(ei); J.last = ei; playSound('phase');
+  J.node = e[1]; J.path.push(e[1]);
+  const idx = J.path.indexOf(e[1]);
+  if (idx !== J.path.length - 1) {
+    const cyc = J.path.slice(idx, J.path.length - 1), sig = normCycle(cyc);
+    J.path = [e[1]];
+    if (!J.loops.has(sig)) {
+      J.loops.add(sig); playSound('success'); renderJourney();
+      const names = cyc.map(k => NODES[k].name); names.push(names[0]);
+      const done = J.loops.size >= 3;
+      openModal({
+        icon: '🔁', title: '순환 고리 발견! (+50점)',
+        html: '<p class="text-yellow-200">' + names.join(' → ') + '</p><p class="mt-2">출발했던 곳으로 돌아왔어요. 지구의 암석은 이렇게 <b class="text-yellow-300">끝없이 돌고 돌아요.</b></p>' + (done ? '<p class="mt-2 text-green-300">서로 다른 고리 3개를 모두 찾았어요! 🎉</p>' : '<p class="mt-2 text-gray-300">다른 길로도 가서 새로운 고리를 찾아보세요.</p>'),
+        buttons: [done ? {label: '결과 보기 ➔', fn: endPuzzle} : {label: '계속 여행하기 ➔'}]
+      });
+      return;
+    }
+    toast('이미 찾은 고리예요! 다른 길로 가보세요.');
+  }
+  renderJourney();
+}
+function endPuzzle() {
+  const total = PZ ? pzTotal() : 0;
+  G.score += total - G.pz; G.pz = total; G.pzDone = true;
+  renderResult(); saveRecord(); refreshInfo(); show('screen-result'); syncRecord();
+  if (total > 0) toast('퍼즐 보너스 +' + total + '점!');
+}
+
+/* =========================================================
+   교사 모드 (PIN은 선생님이 직접 만들어요 — 기본 PIN 없음)
+========================================================= */
+let T = {mode: 'local', pin: '', rows: [], imported: LS.get('rock_imported', []), err: ''};
+let teacherSeq = 0;
+function pinErr(r) {
+  const e = r && r.err;
+  return e === 'locked' ? '틀린 횟수가 많아 2분간 잠겼어요. 잠시 후 다시 시도하세요.' : e === 'bad-pin' ? 'PIN이 맞지 않아요.' :
+    e === 'pin-format' ? 'PIN은 4~20자로 만들어 주세요.' : e === 'no-pin' ? '아직 PIN이 없어요. 교사 모드에 다시 들어가 PIN을 만들어 주세요.' : '처리하지 못했어요. (' + (e || '알 수 없음') + ')';
+}
+function formModal(o) {
+  const inputs = (o.fields || []).map((f, i) => '<input id="fm-' + i + '" type="' + (f.type || 'password') + '" placeholder="' + esc(f.ph) + '" maxlength="' + (f.max || 20) + '" autocomplete="off" class="w-full mt-2 px-3 py-2 bg-gray-900 text-white text-center rounded border border-gray-600">').join('');
+  openModal({icon: o.icon, title: o.title, html: (o.desc ? '<p class="text-sm text-gray-300">' + o.desc + '</p>' : '') + inputs + '<p id="fm-err" class="text-sm text-red-300 mt-2 min-h-[1rem]"></p>', buttons: []});
+  let busy = false;
+  const go = async () => {
+    if (busy) return; busy = true;
+    const vals = (o.fields || []).map((f, i) => $('fm-' + i).value);
+    try { const err = await o.ok(vals); if (err) $('fm-err').textContent = err; }
+    catch (e) { $('fm-err').textContent = '서버에 연결하지 못했어요. 잠시 후 다시 시도해 주세요.'; }
+    busy = false;
+  };
+  setModalButtons([{label: o.okLabel || '확인', keep: true, fn: go}, {label: '취소', cls: 'bg-gray-600 hover:bg-gray-500', fn: () => { teacherSeq++; }}]);
+  const first = $('fm-0'); if (first) { first.focus(); first.addEventListener('keydown', e => { if (e.key === 'Enter') go(); }); }
+}
+function confirmModal(o) {
+  openModal({icon: o.icon || '⚠️', title: o.title, html: o.html, buttons: [{label: o.label || '확인', cls: 'bg-red-700 hover:bg-red-600', fn: o.fn}, {label: '취소', cls: 'bg-gray-600 hover:bg-gray-500'}]});
+}
+const localPinHash = p => hash('pin-salt-' + p);
+function localPinSet() { return !!LS.get('rock_pinh', ''); }
+
+async function openTeacher() {
+  const seq = ++teacherSeq;
+  let pinSet;
+  if (SRV) {
+    openModal({icon: '🔐', title: '서버 확인 중…', html: '<p class="text-sm text-gray-300">잠시만 기다려 주세요. (처음엔 몇 초 걸려요)</p>', buttons: [{label: '취소', cls: 'bg-gray-600 hover:bg-gray-500', fn: () => { teacherSeq++; }}]});
+    let r = null; try { r = await api('status', {}, 25000); } catch (e) {}
+    if (seq !== teacherSeq) return;
+    if (!r || !r.ok) {
+      openModal({icon: '⚠️', title: '서버에 연결하지 못했어요', html: '<p class="text-sm text-gray-300">인터넷 연결과 서버 주소를 확인해 주세요.</p>', buttons: [{label: '다시 시도', fn: openTeacher}, {label: '닫기', cls: 'bg-gray-600 hover:bg-gray-500'}]});
+      return;
+    }
+    pinSet = !!r.pinSet; SV.pinSet = pinSet;
+  } else pinSet = localPinSet();
+
+  if (!pinSet) {
+    formModal({
+      icon: '🔑', title: '교사 PIN 만들기',
+      desc: '처음이시군요! 교사 모드에서 쓸 PIN(4~20자)을 직접 정해 주세요.<br><b class="text-yellow-300">학생에게 링크를 공유하기 전에</b> 먼저 만들어 두세요.',
+      fields: [{ph: '새 PIN (4~20자)'}, {ph: '새 PIN 다시 입력'}], okLabel: 'PIN 만들기',
+      ok: async v => {
+        if (v[0].length < 4 || v[0].length > 20) return 'PIN은 4~20자로 만들어 주세요.';
+        if (v[0] !== v[1]) return '두 PIN이 서로 달라요.';
+        if (SRV) { const r = await api('setpin', {pin: v[0]}, 25000); if (!r || !r.ok) return pinErr(r); SV.pinSet = true; }
+        else LS.set('rock_pinh', localPinHash(v[0]));
+        T.pin = v[0]; closeModal(); toast('PIN을 만들었어요. 잊지 마세요!'); enterTeacher();
+      }
+    });
+  } else {
+    formModal({
+      icon: '🔐', title: '교사 확인', desc: 'PIN을 입력하세요.', fields: [{ph: 'PIN'}],
+      ok: async v => {
+        if (SRV) { const r = await api('login', {pin: v[0]}, 25000); if (!r || !r.ok) return pinErr(r); }
+        else if (localPinHash(v[0]) !== LS.get('rock_pinh', '')) return 'PIN이 맞지 않아요.';
+        T.pin = v[0]; closeModal(); enterTeacher();
+      }
+    });
+  }
+}
+function enterTeacher() {
+  T.mode = SRV ? 'server' : 'local';
+  $('ts-classes').value = SET.classes.join(', '); $('ts-sec').value = SET.factorySeconds; $('ts-m').value = SET.runnerMeters; $('ts-hint').value = SET.hintsOn ? '1' : '0';
+  $('ts-c1').checked = SET.cats.includes('igneous'); $('ts-c2').checked = SET.cats.includes('sedimentary'); $('ts-c3').checked = SET.cats.includes('metamorphic');
+  $('ts-code').value = '';
+  $('ts-mode').innerHTML = SRV ? '<span class="text-green-300">● 서버 연결됨 — 학생 기록이 서버(구글 시트)에 저장돼요.</span>' : '<span class="text-amber-300">○ 서버 미연결 — 이 기기 모드예요. 학생 링크 공유용 서버는 \'서버 주소\'에서 연결하세요.</span>';
+  $('ts-local').style.display = SRV ? 'none' : 'block'; $('ts-codebox').style.display = SRV ? 'none' : 'block';
+  $('ts-clear-srv').style.display = SRV ? '' : 'none';
+  updateShare();
+  show('screen-teacher'); reloadRows();
+}
+function updateShare() {
+  const base = location.href.split('#')[0].split('?')[0];
+  let link = base, note;
+  if (!SRV) note = '서버가 연결되지 않아 주소만 보여요. 학생용 링크는 서버 연결 후 만들어져요.';
+  else if (SERVER_URL) note = '서버 주소가 앱에 내장돼 있어 링크만 공유하면 돼요.';
+  else { link = base + '?s=' + encodeURIComponent(SRV); note = '이 링크로 접속하면 서버가 자동 연결돼요. 학생에게는 이 링크만 올리세요 (PIN은 절대 공유 금지).'; }
+  if (location.protocol === 'file:') note = '⚠️ 지금은 파일로 열려 있어요. index.html을 웹(GitHub Pages 등)에 올린 뒤, 그 주소에서 교사 모드로 들어와 링크를 복사하세요.';
+  $('ts-share').value = link; $('ts-share-note').textContent = note;
+}
+function leaveTeacher() { T.pin = ''; T.rows = []; renderClassBadge(); renderClassSelect(); renderRanking(); refreshRanking(); show('screen-login'); }
+function readSettingsForm() {
+  const cats = []; if ($('ts-c1').checked) cats.push('igneous'); if ($('ts-c2').checked) cats.push('sedimentary'); if ($('ts-c3').checked) cats.push('metamorphic');
+  const classes = $('ts-classes').value.split(/[,，\n]/).map(s => s.trim().slice(0, 12)).filter(Boolean).slice(0, 12);
+  return {classes, factorySeconds: +$('ts-sec').value, runnerMeters: +$('ts-m').value, hintsOn: $('ts-hint').value === '1', cats};
+}
+async function saveSettings() {
+  const o = readSettingsForm(); if (!o.cats.length) { toast('출제 범위를 하나 이상 선택하세요.'); return; }
+  if (SRV) {
+    try {
+      const r = await api('setsettings', {pin: T.pin, settings: o}, 25000);
+      if (r && r.ok) { applySettings(r.settings); renderClassBadge(); renderClassSelect(); toast('서버에 저장했어요. 학생들에게 바로 적용돼요.'); }
+      else toast(pinErr(r));
+    } catch (e) { toast('서버에 연결하지 못했어요.'); }
+  } else { applySettings(o); renderClassBadge(); renderClassSelect(); toast('이 기기에 저장했어요.'); }
+}
+function makeClassCode() {
+  const o = readSettingsForm(); if (!o.cats.length) { toast('출제 범위를 하나 이상 선택하세요.'); return; }
+  applySettings(o); renderClassBadge(); renderClassSelect(); $('ts-code').value = makeCode('RS1', SET); toast('수업 코드를 만들었어요. 이 기기에도 적용됐어요.');
+}
+function num(v) { return Number.isFinite(+v) ? +v : 0; }
+function cleanRow(o) {
+  if (!o || typeof o !== 'object') return null;
+  const wk = {};
+  if (o.wk && typeof o.wk === 'object') Object.keys(o.wk).forEach(k => { if (ROCK_BY_ID[k] && Array.isArray(o.wk[k])) wk[k] = [num(o.wk[k][0]), num(o.wk[k][1])]; });
+  const qt = {}; if (o.qt && typeof o.qt === 'object') Object.keys(o.qt).forEach(k => { if (TAGNAME[k]) qt[k] = num(o.qt[k]); });
+  return {key: String(o.key || '').slice(0, 30), n: String(o.n || '').slice(0, 12), c: String(o.c || '').slice(0, 12), s: num(o.s), cn: num(o.cn), m: num(o.m), k: num(o.k), ca: num(o.ca), wa: num(o.wa), qr: num(o.qr), qw: num(o.qw), pz: num(o.pz), ch: CHAR_BY_ID[o.ch] ? o.ch : 'm1', wk, qt, plays: num(o.plays) || 1, t: num(o.t)};
+}
+function allRows() {
+  if (T.mode === 'server') return T.rows;
+  const seen = new Set(), out = [];
+  LS.get('rock_records', []).map(cleanRow).filter(Boolean).concat(T.imported).forEach(r => { const k = r.n + '|' + r.c + '|' + r.t; if (seen.has(k)) return; seen.add(k); out.push(r); });
+  return out;
+}
+async function reloadRows() {
+  if (T.mode === 'server') {
+    $('ts-table').innerHTML = '<p class="text-gray-400 p-2">서버에서 불러오는 중…</p>';
+    try {
+      const r = await api('all', {pin: T.pin}, 30000);
+      if (!r || !r.ok) { $('ts-table').innerHTML = '<p class="text-red-300 p-2">' + esc(pinErr(r)) + '</p>'; return; }
+      T.rows = (r.rows || []).map(cleanRow).filter(Boolean);
+    } catch (e) { $('ts-table').innerHTML = '<p class="text-red-300 p-2">서버에 연결하지 못했어요. 새로고침을 눌러 다시 시도하세요.</p>'; return; }
+  }
+  renderTeacher();
+}
+function importCodes() {
+  const toks = $('ts-paste').value.split(/\s+/).filter(Boolean); if (!toks.length) { toast('결과 코드를 붙여넣어 주세요.'); return; }
+  let ok = 0, bad = 0; const keys = new Set(allRows().map(r => r.n + '|' + r.c + '|' + r.t));
+  toks.forEach(tok => {
+    const row = cleanRow(readCode(tok, 'RR1'));
+    if (!row || !row.n) { bad++; return; }
+    const k = row.n + '|' + row.c + '|' + row.t; if (keys.has(k)) return;
+    keys.add(k); T.imported.push(row); ok++;
+  });
+  LS.set('rock_imported', T.imported.slice(-500)); $('ts-paste').value = '';
+  toast(ok + '건 불러옴' + (bad ? ' · 올바르지 않은 코드 ' + bad + '건' : '')); renderTeacher();
+}
+function renderTeacher() {
+  const rows = allRows(), sel = $('ts-filter'), prev = sel.value || '전체';
+  const classes = Array.from(new Set(rows.map(r => r.c || '(반 없음)')));
+  sel.innerHTML = '<option>전체</option>' + classes.map(c => '<option>' + esc(c) + '</option>').join('');
+  sel.value = classes.concat(['전체']).includes(prev) ? prev : '전체';
+  const f = sel.value, view = rows.filter(r => f === '전체' || (r.c || '(반 없음)') === f).sort((a, b) => b.s - a.s);
+  const srv = T.mode === 'server';
+  if (!view.length) $('ts-table').innerHTML = '<p class="text-gray-500 p-2">아직 기록이 없어요.</p>';
+  else $('ts-table').innerHTML = '<table class="rk"><tr><th>순위</th><th>이름</th><th>반</th><th>점수</th><th>정확도</th><th>출고</th><th>코인</th><th>광물</th><th>퀴즈</th><th>퍼즐</th><th>캐릭터</th><th>횟수</th>' + (srv ? '<th>삭제</th>' : '') + '</tr>' +
+    view.map((r, i) => { const tot = r.ca + r.wa, qt = r.qr + r.qw; return '<tr><td>' + (i + 1) + '</td><td>' + esc(r.n) + '</td><td>' + esc(r.c || '-') + '</td><td class="text-yellow-300">' + r.s + '</td><td>' + (tot ? Math.round(r.ca / tot * 100) + '%' : '-') + '</td><td>' + r.k + '</td><td>' + r.cn + '</td><td>' + r.m + '</td><td>' + (qt ? r.qr + '/' + qt : '-') + '</td><td>' + r.pz + '</td><td>' + CHAR_BY_ID[r.ch].name + '</td><td>' + r.plays + '</td>' + (srv ? '<td><button class="px-2 py-0.5 bg-red-800 rounded text-white" data-del="' + esc(r.key) + '" data-name="' + esc(r.n) + '">삭제</button></td>' : '') + '</tr>'; }).join('') + '</table>';
+  $('ts-table').querySelectorAll('[data-del]').forEach(b => { b.onclick = () => deleteRow(b.dataset.del, b.dataset.name); });
+  renderAnalysis(view);
+}
+function deleteRow(key, name) {
+  confirmModal({title: '기록 삭제', html: '<p><b>' + esc(name) + '</b> 학생의 기록을 서버에서 삭제할까요? 되돌릴 수 없어요.</p>', label: '삭제',
+    fn: async () => { try { const r = await api('del', {pin: T.pin, key}, 25000); if (r && r.ok) { toast('삭제했어요.'); reloadRows(); } else toast(pinErr(r)); } catch (e) { toast('서버에 연결하지 못했어요.'); } }});
+}
+
+function renderAnalysis(view) {
+  const box = $('ts-analysis');
+  if (!view.length) { box.innerHTML = '<p class="text-gray-500">기록이 쌓이면 학급에서 어려워한 개념이 여기에 표시돼요.</p>'; return; }
+  const agg = {}; let sumS = 0, sumA = 0, nA = 0; const qtAgg = {};
+  view.forEach(r => {
+    sumS += r.s; const t = r.ca + r.wa; if (t) { sumA += r.ca / t; nA++; }
+    Object.keys(r.wk || {}).forEach(k => { const a = agg[k] || (agg[k] = [0, 0]); a[0] += r.wk[k][0]; a[1] += r.wk[k][1]; });
+    Object.keys(r.qt || {}).forEach(k => qtAgg[k] = (qtAgg[k] || 0) + r.qt[k]);
+  });
+  const weak = Object.keys(agg).filter(k => agg[k][1] > 0).sort((a, b) => agg[b][1] / (agg[b][0] + agg[b][1]) - agg[a][1] / (agg[a][0] + agg[a][1]) || agg[b][1] - agg[a][1]).slice(0, 5);
+  let h = '<p class="text-gray-300">참여 ' + view.length + '명 · 평균 점수 <b class="text-yellow-300">' + Math.round(sumS / view.length) + '</b> · 평균 정확도 <b class="text-green-300">' + (nA ? Math.round(sumA / nA * 100) + '%' : '-') + '</b></p>';
+  if (!weak.length) h += '<p class="text-green-300">오답이 거의 없어요! 난이도를 높이거나 힌트를 금지해 보세요.</p>';
+  else h += '<p class="text-gray-400">많이 틀린 암석 TOP ' + weak.length + ' (오답률 높은 순)</p>' + weak.map(k => {
+    const r = ROCK_BY_ID[k], t = agg[k][0] + agg[k][1], pct = Math.round(agg[k][1] / t * 100);
+    return '<div class="bg-gray-900 rounded p-2"><div class="flex justify-between"><b class="text-yellow-300">' + r.icon + ' ' + r.name + '</b><span class="text-red-300">오답률 ' + pct + '% (' + agg[k][1] + '/' + t + ')</span></div><div class="h-1.5 bg-gray-700 rounded mt-1"><div class="h-1.5 bg-red-500 rounded" style="width:' + pct + '%"></div></div><p class="text-gray-400 mt-1">' + esc(r.desc) + '</p></div>';
+  }).join('');
+  const qk = Object.keys(qtAgg).sort((a, b) => qtAgg[b] - qtAgg[a]);
+  if (qk.length) h += '<p class="text-gray-300">❓ 광물 퀴즈 오답 많은 주제: ' + qk.map(k => TAGNAME[k] + ' ' + qtAgg[k] + '회').join(', ') + '</p>';
+  box.innerHTML = h;
+}
+
+function exportCsv() {
+  const f = $('ts-filter').value, rows = allRows().filter(r => f === '전체' || (r.c || '(반 없음)') === f).sort((a, b) => b.s - a.s);
+  if (!rows.length) { toast('내보낼 기록이 없어요.'); return; }
+  const q = v => { v = String(v == null ? '' : v); if (/^[=+\-@\t\r]/.test(v)) v = "'" + v; return '"' + v.replace(/"/g, '""') + '"'; };
+  const head = ['순위', '이름', '반', '점수', '정확도(%)', '정답', '오답', '출고', '코인', '광물', '퀴즈정답', '퀴즈오답', '퍼즐점수', '캐릭터', '플레이 횟수', '일시', '자주 틀린 암석'];
+  const lines = [head.map(q).join(',')].concat(rows.map((r, i) => {
+    const t = r.ca + r.wa, wk = Object.keys(r.wk || {}).filter(k => r.wk[k][1] > 0).sort((a, b) => r.wk[b][1] - r.wk[a][1]).slice(0, 3).map(k => ROCK_BY_ID[k].name).join('/');
+    return [i + 1, r.n, r.c, r.s, t ? Math.round(r.ca / t * 100) : '', r.ca, r.wa, r.k, r.cn, r.m, r.qr, r.qw, r.pz, CHAR_BY_ID[r.ch].name, r.plays, r.t ? new Date(r.t).toLocaleString('ko-KR') : '', wk].map(q).join(',');
+  }));
+  const blob = new Blob(['﻿' + lines.join('\r\n')], {type: 'text/csv;charset=utf-8'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = '암석연금술사_결과.csv'; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  toast('CSV 파일을 내보냈어요.');
+}
+function changePin() {
+  formModal({
+    icon: '🔑', title: 'PIN 변경', fields: [{ph: '현재 PIN'}, {ph: '새 PIN (4~20자)'}, {ph: '새 PIN 다시 입력'}], okLabel: '변경',
+    ok: async v => {
+      if (v[1].length < 4 || v[1].length > 20) return '새 PIN은 4~20자로 만들어 주세요.';
+      if (v[1] !== v[2]) return '새 PIN 두 칸이 서로 달라요.';
+      if (SRV) { const r = await api('setpin', {old: v[0], pin: v[1]}, 25000); if (!r || !r.ok) return pinErr(r); }
+      else { if (localPinHash(v[0]) !== LS.get('rock_pinh', '')) return '현재 PIN이 맞지 않아요.'; LS.set('rock_pinh', localPinHash(v[1])); }
+      T.pin = v[1]; closeModal(); toast('PIN을 변경했어요.');
+    }
+  });
+}
+function clearServerRows() {
+  confirmModal({title: '서버 기록 전체 삭제', html: '<p>서버에 저장된 <b>모든 학생 기록</b>을 삭제할까요?<br>되돌릴 수 없어요. (학기 초기화용)</p>', label: '전부 삭제',
+    fn: async () => { try { const r = await api('clear', {pin: T.pin}, 25000); if (r && r.ok) { LB.top = []; T.rows = []; toast('서버 기록을 모두 삭제했어요.'); renderTeacher(); renderRanking(); } else toast(pinErr(r)); } catch (e) { toast('서버에 연결하지 못했어요.'); } }});
+}
+function clearRecords() {
+  confirmModal({title: '이 기기 기록 삭제', html: '<p>이 기기에 저장된 플레이 기록과 불러온 결과를 모두 삭제할까요? 되돌릴 수 없어요.</p>', label: '삭제',
+    fn: () => { LS.del('rock_records'); LS.del('rock_imported'); LS.del('rock_pending'); T.imported = []; renderTeacher(); renderRanking(); toast('삭제했어요.'); }});
+}
+
+/* =========================================================
+   시작
+========================================================= */
+window.addEventListener('load', () => {
+  $('btn-mute').textContent = muted ? '🔇' : '🔊';
+  const n = LS.get('rock_nick', ''); if (typeof n === 'string') $('input-nickname').value = n;
+  renderClassBadge(); renderClassSelect(); renderRanking(); updateCodexCount(); renderSrvState(); paintHeroes();
+  initServer();
+});
+
+</script>
+</body>
+</html>
